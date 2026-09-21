@@ -51,6 +51,13 @@ app.use(cors({
     origin: allowedOrigins,
 }))
 
+// Health check — o Render bate em GET / (healthCheckPath) pra saber se o serviço
+// está no ar. Responde 200 sem auth e sem tocar no banco (rápido e à prova de falha
+// de DB), evitando que a plataforma marque o deploy como unhealthy.
+app.get('/', (_req, res) => {
+    res.json({ status: 'ok', service: 'worship-stage-api' })
+})
+
 // Webhook do Stripe: precisa do corpo CRU (Buffer) pra validar a assinatura HMAC,
 // então é montado ANTES do express.json() e com o parser raw só nesta rota.
 app.post('/billing/webhook', express.raw({ type: 'application/json' }), webhookController)
