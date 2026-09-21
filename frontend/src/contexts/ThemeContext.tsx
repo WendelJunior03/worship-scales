@@ -21,9 +21,9 @@ const ThemeContext = createContext<ThemeData | undefined>(undefined);
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const sistema = useColorScheme(); // 'light' | 'dark' | null — reativo a mudanças do SO
-  // Padrão do app é ESCURO (dark premium). Quem escolheu outro tema tem a preferência
-  // carregada do AsyncStorage abaixo e sobrescreve este default.
-  const [preferencia, setPreferencia] = useState<PreferenciaTema>('escuro');
+  // Padrão do app é CLARO. Quem escolheu outro tema tem a preferência carregada do
+  // AsyncStorage abaixo e sobrescreve este default.
+  const [preferencia, setPreferencia] = useState<PreferenciaTema>('claro');
 
   useEffect(() => {
     AsyncStorage.getItem(CHAVE)
@@ -40,9 +40,9 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     AsyncStorage.setItem(CHAVE, p).catch(() => undefined);
   }, []);
 
-  // "sistema" segue o SO; sem info (null) cai no escuro (tema padrão do app).
+  // "sistema" segue o SO; sem info (null) cai no claro (tema padrão do app).
   const modo: ModoTema =
-    preferencia === 'sistema' ? (sistema === 'light' ? 'claro' : 'escuro') : preferencia;
+    preferencia === 'sistema' ? (sistema === 'dark' ? 'escuro' : 'claro') : preferencia;
   const { colors, shadows } = temas[modo];
 
   const valor = useMemo(
