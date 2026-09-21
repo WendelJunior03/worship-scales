@@ -8,21 +8,22 @@ let html = fs.readFileSync(indexPath, 'utf8');
 
 const tags = `
   <link rel="manifest" href="/manifest.json" />
-  <meta name="theme-color" content="#6C3CE0" />
+  <meta name="theme-color" content="#F4F6FB" />
   <link rel="apple-touch-icon" href="/icon-192.png" />
   <meta name="google" content="notranslate" />
   <style>
-    /* O Chrome força um fundo claro em campos com autofill/valor reconhecido,
-       ignorando nosso tema escuro. Esse truque do box-shadow "pinta por cima"
-       porque o navegador não deixa sobrescrever background-color direto. */
+    /* O Chrome pinta um fundo amarelado próprio em campos com autofill, ignorando o
+       fundo do nosso Input. Esse truque do box-shadow "pinta por cima" (o navegador
+       não deixa sobrescrever background-color direto). Cores do tema CLARO (padrão):
+       fundo branco + texto escuro, pra combinar com o form de login. */
     input:-webkit-autofill,
     input:-webkit-autofill:hover,
     input:-webkit-autofill:focus,
     input:-webkit-autofill:active {
-      -webkit-box-shadow: 0 0 0 1000px #1B1729 inset !important;
-      box-shadow: 0 0 0 1000px #1B1729 inset !important;
-      -webkit-text-fill-color: #FFFFFF !important;
-      caret-color: #FFFFFF !important;
+      -webkit-box-shadow: 0 0 0 1000px #FFFFFF inset !important;
+      box-shadow: 0 0 0 1000px #FFFFFF inset !important;
+      -webkit-text-fill-color: #0A0F1A !important;
+      caret-color: #0A0F1A !important;
       transition: background-color 9999s ease-in-out 0s;
     }
   </style>

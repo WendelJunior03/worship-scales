@@ -5,7 +5,7 @@
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
-    "userInterfaceStyle": "dark",
+    "userInterfaceStyle": "light",
     "ios": {
       "supportsTablet": true
     },
@@ -20,8 +20,8 @@
     },
     "web": {
       "favicon": "./assets/favicon.png",
-      "themeColor": "#0B111C",
-      "backgroundColor": "#0B111C"
+      "themeColor": "#F4F6FB",
+      "backgroundColor": "#F4F6FB"
     },
     "plugins": [
       "expo-secure-store",
