@@ -15,6 +15,7 @@ import {
 import { AuthProvider } from '@/contexts/AuthContext';
 import { ConfirmDialogHost } from '@/components/ConfirmDialogHost';
 import { ToastHost } from '@/components/ToastHost';
+import { InstallPwaHost } from '@/components/InstallPwaHost';
 import { RootNavigator } from '@/navigation/RootNavigator';
 import { navigationRef } from '@/navigation/navigationRef';
 import { linking } from '@/navigation/linking';
@@ -62,6 +63,21 @@ export default function App() {
       return () => {
         document.head.removeChild(style);
       };
+    }
+  }, []);
+
+  useEffect(() => {
+    // Registra o service worker no web — é o que habilita o PWA a ser instalável
+    // (o convite de instalar em si é do InstallPwaHost). Falha silenciosa: se não
+    // registrar, o app segue funcionando como site normal.
+    if (Platform.OS === 'web' && typeof navigator !== 'undefined' && 'serviceWorker' in navigator) {
+      const registrar = () => navigator.serviceWorker.register('/sw.js').catch(() => {});
+      if (document.readyState === 'complete') {
+        registrar();
+      } else {
+        window.addEventListener('load', registrar);
+        return () => window.removeEventListener('load', registrar);
+      }
     }
   }, []);
 
@@ -114,6 +130,7 @@ function RaizApp({ pronto, initialState }: { pronto: boolean; initialState?: Ini
       <RootNavigator />
       <ConfirmDialogHost />
       <ToastHost />
+      <InstallPwaHost />
       <StatusBar style={modo === 'escuro' ? 'light' : 'dark'} />
     </NavigationContainer>
   );
