@@ -76,12 +76,12 @@ export const sombrasEscuras: Sombras = {
   lg: { shadowColor: '#000000', shadowOffset: { width: 0, height: 14 }, shadowOpacity: 0.5, shadowRadius: 28, elevation: 12 },
 };
 
-// --- Tema CLARO (Ink wash: creme + grafite + azul-ardósia) ---
+// --- Tema CLARO (Ink wash: fundo branco, componentes creme, azul-ardósia) ---
 export const paletaClara: Cores = {
-  background: '#FFFFE3',
-  surface: '#FFFFFF',
-  surfaceElevated: '#F2F2E0',
-  surfaceMuted: '#F2F2E0',
+  background: '#FFFFFF',
+  surface: '#FFFFE3',
+  surfaceElevated: '#F7F7D9',
+  surfaceMuted: '#F7F7D9',
   primary: '#6D8196',
   primaryDark: '#5A6C80',
   primaryLight: '#A9B7C6',
@@ -89,9 +89,9 @@ export const paletaClara: Cores = {
   accent: '#5A6C80',
   accentSoft: 'rgba(109, 129, 150, 0.14)',
   primaryGradient: ['#7C90A5', '#6D8196'],
-  bgGradient: ['#FFFFE3', '#F4F4EC'],
+  bgGradient: ['#FFFFFF', '#FFFFFF'],
   accentGradient: ['#6D8196', '#4A4A4A'],
-  heroGradient: ['#FFFFF0', '#EEF0F2'],
+  heroGradient: ['#FFFFE3', '#F2F4EC'],
   glow: '#6D8196',
   text: '#4A4A4A',
   textPrimary: '#4A4A4A',
