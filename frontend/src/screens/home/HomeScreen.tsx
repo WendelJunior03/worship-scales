@@ -1,6 +1,5 @@
 import React, { useCallback, useState } from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { Badge } from '@/components/Badge';
 import { Card } from '@/components/Card';
 import { Icon, IconName } from '@/components/Icon';
 import { Skeleton } from '@/components/Skeleton';
@@ -8,20 +7,16 @@ import { Avatar } from '@/components/Avatar';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useAuth } from '@/contexts/AuthContext';
 import { MainTabScreenNavigationProp } from '@/navigation/types';
 import * as notificacoesService from '@/services/notificacoes';
-import * as ministeriosService from '@/services/ministerios';
 import * as cultosService from '@/services/cultos';
 import * as membrosService from '@/services/membros';
 import * as avisosService from '@/services/avisos';
 import { ApiError } from '@/services/api';
-import { Aniversariante, Aviso, CultoResumo, Ministerio } from '@/types';
+import { Aniversariante, Aviso, CultoResumo } from '@/types';
 import { spacing, radius, typography, fonts, LARGURA_CONTEUDO } from '@/theme';
 import { Cores, Sombras } from '@/theme/palettes';
 import { useTheme, useThemedStyles } from '@/contexts/ThemeContext';
-import { formatDiaSemana, formatHora } from '@/utils/date';
-import { getSaudacao } from '@/utils/greeting';
 
 function inicioDoDia(d: Date): number {
   const c = new Date(d);
@@ -65,10 +60,8 @@ const ATALHOS: { icon: IconName; label: string; route: 'Escalas' | 'Biblioteca' 
 export function HomeScreen() {
   const { colors } = useTheme();
   const styles = useThemedStyles(criarEstilos);
-  const { user, org } = useAuth();
   const navigation = useNavigation<MainTabScreenNavigationProp<'Home'>>();
 
-  const [ministerios, setMinisterios] = useState<Ministerio[]>([]);
   const [minhasEscalas, setMinhasEscalas] = useState<CultoResumo[]>([]);
   const [aniversariantes, setAniversariantes] = useState<Aniversariante[]>([]);
   const [avisos, setAvisos] = useState<Aviso[]>([]);
@@ -80,14 +73,12 @@ export function HomeScreen() {
     setIsLoading(true);
     setError(null);
     try {
-      const [mins, resumo, nascimentos, comunicados] = await Promise.all([
-        ministeriosService.listarMinisterios(),
+      const [resumo, nascimentos, comunicados] = await Promise.all([
         cultosService.getResumoCultos(),
         membrosService.getAniversariantesDoMes(),
         avisosService.listarAvisos(),
       ]);
       const hoje = inicioDoDia(new Date());
-      setMinisterios(mins);
       setAniversariantes(nascimentos);
       setAvisos(comunicados.slice(0, 3));
       setMinhasEscalas(
@@ -118,8 +109,6 @@ export function HomeScreen() {
     }, []),
   );
 
-  const primeiroNome = user?.nome?.split(' ')[0] ?? 'membro';
-
   // Resumo do hero (dados reais já carregados).
   const proximaEscala = minhasEscalas[0];
 
@@ -137,113 +126,105 @@ export function HomeScreen() {
 
   return (
     <SafeAreaView style={styles.screen} edges={['top']}>
-      <View style={styles.header}>
-        <View style={styles.headerBrand}>
-          <Avatar nome={user?.nome ?? primeiroNome} fotoUrl={user?.foto_url} size={44} />
-          <View style={styles.headerTexts}>
-            <Text style={styles.greeting}>
-              {getSaudacao()}, {primeiroNome}
-            </Text>
-            <Text style={styles.headerOrg} numberOfLines={1}>
-              {org?.nome ?? 'Worship Stage'}
-            </Text>
-          </View>
-        </View>
+      {/* Top bar estilo Instagram: wordmark + sino. */}
+      <View style={styles.topbar}>
+        <Text style={styles.wordmark}>Worship Stage</Text>
         <TouchableOpacity
-          style={styles.bell}
+          style={styles.topbarBtn}
           onPress={() => navigation.navigate('Notificacoes')}
           hitSlop={8}
           accessibilityRole="button"
           accessibilityLabel={temNotificacaoNaoLida ? 'Notificações (não lidas)' : 'Notificações'}
         >
-          <Icon name="notifications-outline" size={22} color={colors.text} />
+          <Icon name="notifications-outline" size={24} color={colors.text} />
           {temNotificacaoNaoLida && <View style={styles.badgeDot} />}
         </TouchableOpacity>
       </View>
 
       <ScrollView style={styles.scroll} contentContainerStyle={styles.content}>
-        {/* Hero de resumo (próxima escala + anéis) */}
-        <LinearGradient
-          colors={colors.heroGradient}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
-          style={styles.heroCard}
+        {/* Stories: atalhos em círculos com anel (estilo IG). */}
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          style={styles.storiesWrap}
+          contentContainerStyle={styles.stories}
         >
-          <View style={styles.heroTopo}>
-            <View style={{ flex: 1 }}>
-              <Text style={styles.heroLabel}>Próxima escala</Text>
-              {proximaEscala ? (
-                <>
-                  <Text style={styles.heroBig}>{diaMesCurto(proximaEscala.data_hora)}</Text>
-                  <Text style={styles.heroSub}>
-                    {proximaEscala.tipo ?? 'Culto'} · {rotuloRelativo(proximaEscala.data_hora)}
-                  </Text>
-                </>
-              ) : (
-                <>
-                  <Text style={styles.heroBig}>Tudo em dia</Text>
-                  <Text style={styles.heroSub}>Nenhuma escala próxima</Text>
-                </>
-              )}
-            </View>
-            <View style={styles.heroIcon}>
-              <Icon name="calendar-outline" size={22} color={colors.accent} />
-            </View>
-          </View>
-          {proximaEscala && (
-            <View style={styles.heroFooter}>
-              {proximaEscala.participantes.length > 0 ? (
-                <View style={styles.avatares}>
-                  {proximaEscala.participantes.slice(0, 4).map((p, i) => (
-                    <Avatar
-                      key={p.membro_id}
-                      nome={p.nome}
-                      fotoUrl={p.foto}
-                      size={30}
-                      style={[styles.avatarBorda, i > 0 ? styles.avatarSobreposto : undefined]}
-                    />
-                  ))}
-                  {proximaEscala.participantes.length > 4 && (
-                    <View style={[styles.avatarPeq, styles.avatarSobreposto, styles.avatarMais]}>
-                      <Text style={styles.avatarPeqText}>+{proximaEscala.participantes.length - 4}</Text>
-                    </View>
-                  )}
-                </View>
-              ) : (
-                <View />
-              )}
-              <TouchableOpacity
-                style={styles.heroBotao}
-                onPress={() => navigation.navigate('DetalhesCulto', { cultoId: proximaEscala.id })}
-              >
-                <Text style={styles.heroBotaoText}>
-                  {proximaEscala.minha_situacao === 'confirmado' ? 'Ver escala' : 'Confirmar presença'}
-                </Text>
-                <Icon name="chevron-forward" size={16} color={colors.textInverse} />
-              </TouchableOpacity>
-            </View>
-          )}
-        </LinearGradient>
-
-        {/* Atalhos rápidos */}
-        <View style={styles.atalhos}>
           {ATALHOS.map((a) => (
             <TouchableOpacity
               key={a.label}
-              style={styles.atalho}
+              style={styles.story}
               onPress={() => navigation.navigate(a.route)}
               accessibilityRole="button"
               accessibilityLabel={a.label}
             >
-              <View style={styles.atalhoIcon}>
-                <Icon name={a.icon} size={22} color={colors.primary} />
-              </View>
-              <Text style={styles.atalhoLabel} numberOfLines={1}>
+              <LinearGradient
+                colors={colors.accentGradient}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+                style={styles.storyRing}
+              >
+                <View style={styles.storyInner}>
+                  <Icon name={a.icon} size={24} color={colors.primary} />
+                </View>
+              </LinearGradient>
+              <Text style={styles.storyLabel} numberOfLines={1}>
                 {a.label}
               </Text>
             </TouchableOpacity>
           ))}
-        </View>
+        </ScrollView>
+
+        {/* Post: próxima escala */}
+        <PostCard
+          styles={styles}
+          colors={colors}
+          icone="calendar-outline"
+          titulo={proximaEscala ? (proximaEscala.tipo ?? 'Próximo culto') : 'Tudo em dia'}
+          sub={
+            proximaEscala
+              ? `${diaMesCurto(proximaEscala.data_hora)} · ${rotuloRelativo(proximaEscala.data_hora)}`
+              : 'Nenhuma escala próxima'
+          }
+          onPress={
+            proximaEscala
+              ? () => navigation.navigate('DetalhesCulto', { cultoId: proximaEscala.id })
+              : undefined
+          }
+        >
+          {proximaEscala && (
+            <>
+              {proximaEscala.participantes.length > 0 && (
+                <View style={styles.postServindo}>
+                  <View style={styles.avatares}>
+                    {proximaEscala.participantes.slice(0, 4).map((p, i) => (
+                      <Avatar
+                        key={p.membro_id}
+                        nome={p.nome}
+                        fotoUrl={p.foto}
+                        size={30}
+                        style={[styles.avatarBorda, i > 0 ? styles.avatarSobreposto : undefined]}
+                      />
+                    ))}
+                    {proximaEscala.participantes.length > 4 && (
+                      <View style={[styles.avatarPeq, styles.avatarSobreposto, styles.avatarMais]}>
+                        <Text style={styles.avatarPeqText}>+{proximaEscala.participantes.length - 4}</Text>
+                      </View>
+                    )}
+                  </View>
+                  <Text style={styles.postServindoTxt}>servindo</Text>
+                </View>
+              )}
+              <TouchableOpacity
+                style={styles.postBotao}
+                onPress={() => navigation.navigate('DetalhesCulto', { cultoId: proximaEscala.id })}
+              >
+                <Text style={styles.postBotaoText}>
+                  {proximaEscala.minha_situacao === 'confirmado' ? 'Ver escala' : 'Confirmar presença'}
+                </Text>
+              </TouchableOpacity>
+            </>
+          )}
+        </PostCard>
 
         {error ? (
           <Card style={styles.centeredCard}>
@@ -255,196 +236,103 @@ export function HomeScreen() {
           </Card>
         ) : null}
 
-        {/* Ministérios */}
-        <SecaoHeader titulo="Ministérios" contador={ministerios.length} styles={styles} />
-        {ministerios.length === 0 ? (
-          <VazioCard texto="Você ainda não está em nenhum ministério." styles={styles} />
-        ) : (
-          ministerios.map((m) => (
-            <Card key={m.id} style={styles.ministerioCard} onPress={() => navigation.navigate('Ministerio')}>
-              <View style={styles.ministerioIcon}>
-                <Icon name="business-outline" size={22} color={colors.primary} />
-              </View>
-              <View style={{ flex: 1 }}>
-                <Text style={styles.ministerioNome}>{m.nome}</Text>
-                <Text style={styles.ministerioMeta}>
-                  {(m.total_membros ?? 0)} membro{(m.total_membros ?? 0) === 1 ? '' : 's'}
-                </Text>
-              </View>
-              <Icon name="chevron-forward" size={18} color={colors.textMuted} />
-            </Card>
-          ))
-        )}
-
-        {/* Minhas escalas (próximas) */}
-        <SecaoHeader
-          titulo="Minhas escalas"
-          subtitulo="Próximas"
-          contador={minhasEscalas.length}
-          acao={{ label: 'Ver todas', onPress: () => navigation.navigate('Escalas') }}
-          styles={styles}
-        />
-        {minhasEscalas.length === 0 ? (
-          <VazioCard texto="Nenhuma escala próxima." styles={styles} />
-        ) : (
-          minhasEscalas.map((c) => (
-            <Card key={c.id} style={styles.escalaCard} onPress={() => navigation.navigate('DetalhesCulto', { cultoId: c.id })}>
-              <View style={styles.escalaTopo}>
-                <Icon name="calendar-outline" size={16} color={colors.textSecondary} />
-                <Text style={styles.escalaData}>
-                  {formatDiaSemana(c.data_hora)}, {formatHora(c.data_hora)}
-                </Text>
-                <Text style={styles.escalaRelativo}>· {diaMesCurto(c.data_hora)} · {rotuloRelativo(c.data_hora)}</Text>
-              </View>
-              <Text style={styles.escalaTitulo}>
-                {c.tipo ?? `Culto de ${formatDiaSemana(c.data_hora)}`}
+        {/* Posts: comunicados */}
+        {avisos.map((a) => (
+          <PostCard
+            key={a.id}
+            styles={styles}
+            colors={colors}
+            icone="chatbubble-ellipses-outline"
+            titulo={a.titulo}
+            sub="Comunicado"
+            unread={!a.lido}
+            onPress={() => navigation.navigate('Comunicados', { abrirId: a.id })}
+          >
+            {a.corpo ? (
+              <Text style={styles.postCorpo} numberOfLines={3}>
+                {a.corpo}
               </Text>
-              {c.participantes.length > 0 && (
-                <View style={styles.avatares}>
-                  {c.participantes.slice(0, 5).map((p, i) => (
-                    <Avatar
-                      key={p.membro_id}
-                      nome={p.nome}
-                      fotoUrl={p.foto}
-                      size={28}
-                      style={[styles.avatarBorda, i > 0 ? styles.avatarSobreposto : undefined]}
-                    />
-                  ))}
-                  {c.participantes.length > 5 && (
-                    <View style={[styles.avatarPeq, styles.avatarSobreposto, styles.avatarMais]}>
-                      <Text style={styles.avatarPeqText}>+{c.participantes.length - 5}</Text>
-                    </View>
-                  )}
-                </View>
-              )}
-              <View style={styles.escalaRodape}>
-                {c.minha_situacao === 'confirmado' ? (
-                  <Badge label="Confirmado" tone="success" />
-                ) : (
-                  <Badge label="Pendente" tone="warning" />
-                )}
-                <View style={styles.contador}>
-                  <Icon name="musical-notes" size={14} color={colors.textMuted} />
-                  <Text style={styles.contadorText}>{c.total_musicas}</Text>
-                </View>
-                <View style={styles.contador}>
-                  <Icon name="chatbubble-ellipses-outline" size={14} color={colors.textMuted} />
-                  <Text style={styles.contadorText}>{c.total_comentarios}</Text>
-                </View>
-              </View>
-            </Card>
-          ))
-        )}
+            ) : null}
+          </PostCard>
+        ))}
 
-        {/* Comunicados (módulo 9) */}
-        <SecaoHeader
-          titulo="Comunicados"
-          subtitulo="Em destaque"
-          contador={avisos.length}
-          acao={{ label: 'Ver todos', onPress: () => navigation.navigate('Comunicados') }}
-          styles={styles}
-        />
-        {avisos.length === 0 ? (
-          <VazioCard texto="Nenhum comunicado no momento." styles={styles} />
-        ) : (
-          avisos.map((a) => (
-            <Card
-              key={a.id}
-              style={styles.ministerioCard}
-              onPress={() => navigation.navigate('Comunicados', { abrirId: a.id })}
-            >
-              <View style={[styles.avisoPonto, !a.lido && styles.avisoPontoNaoLido]} />
-              <View style={{ flex: 1 }}>
-                <Text style={[styles.ministerioNome, !a.lido && styles.avisoTituloNaoLido]} numberOfLines={1}>
-                  {a.titulo}
-                </Text>
-                {a.corpo ? (
-                  <Text style={styles.ministerioMeta} numberOfLines={1}>
-                    {a.corpo}
+        {/* Post: aniversariantes do mês */}
+        {aniversariantes.length > 0 && (
+          <PostCard
+            styles={styles}
+            colors={colors}
+            icone="gift-outline"
+            titulo="Aniversariantes do mês"
+            sub={`${aniversariantes.length} este mês`}
+          >
+            <View style={styles.anivLista}>
+              {aniversariantes.slice(0, 5).map((a) => (
+                <View key={a.id} style={styles.anivItem}>
+                  <Avatar nome={a.nome} size={28} />
+                  <Text style={styles.anivNome} numberOfLines={1}>
+                    {a.nome}
                   </Text>
-                ) : null}
-              </View>
-              <Icon name="chevron-forward" size={18} color={colors.textMuted} />
-            </Card>
-          ))
+                  <Text style={styles.anivData}>{formatAniversario(a.data_nascimento)}</Text>
+                </View>
+              ))}
+            </View>
+          </PostCard>
         )}
 
-        {/* Aniversariantes (módulo 8) */}
-        <SecaoHeader
-          titulo="Aniversariantes"
-          subtitulo="Este mês"
-          contador={aniversariantes.length}
+        {/* Post: atalho pro repertório */}
+        <PostCard
           styles={styles}
-        />
-        {aniversariantes.length === 0 ? (
-          <VazioCard texto="Nenhum aniversariante este mês." styles={styles} />
-        ) : (
-          aniversariantes.map((a) => (
-            <Card key={a.id} style={styles.ministerioCard}>
-              <View style={styles.iconAniv}>
-                <Icon name="gift-outline" size={22} color={colors.warning} />
-              </View>
-              <View style={{ flex: 1 }}>
-                <Text style={styles.ministerioNome}>{a.nome}</Text>
-                <Text style={styles.ministerioMeta}>{formatAniversario(a.data_nascimento)}</Text>
-              </View>
-            </Card>
-          ))
-        )}
-
-        {/* Mais tocadas — atalho pra biblioteca */}
-        <Card style={styles.promoCard} onPress={() => navigation.navigate('Biblioteca')}>
-          <View style={styles.promoIcon}>
-            <Icon name="musical-notes" size={20} color={colors.accent} />
-          </View>
-          <View style={{ flex: 1 }}>
-            <Text style={styles.promoTitulo}>Mais tocadas</Text>
-            <Text style={styles.promoSub}>Confira as músicas do repertório.</Text>
-          </View>
-          <Icon name="chevron-forward" size={18} color={colors.textMuted} />
-        </Card>
+          colors={colors}
+          icone="musical-notes"
+          titulo="Mais tocadas"
+          sub="Repertório"
+          onPress={() => navigation.navigate('Biblioteca')}
+        >
+          <Text style={styles.postCorpo}>Confira as músicas do repertório.</Text>
+        </PostCard>
       </ScrollView>
     </SafeAreaView>
   );
 }
 
-function SecaoHeader({
-  titulo,
-  subtitulo,
-  contador,
-  acao,
+function PostCard({
   styles,
+  colors,
+  icone,
+  titulo,
+  sub,
+  unread,
+  onPress,
+  children,
 }: {
-  titulo: string;
-  subtitulo?: string;
-  contador?: number;
-  acao?: { label: string; onPress: () => void };
   styles: ReturnType<typeof criarEstilos>;
+  colors: Cores;
+  icone: IconName;
+  titulo: string;
+  sub?: string;
+  unread?: boolean;
+  onPress?: () => void;
+  children?: React.ReactNode;
 }) {
   return (
-    <View style={styles.secaoHeader}>
-      <View style={styles.secaoTituloLinha}>
-        <Text style={styles.secaoTitulo}>{titulo}</Text>
-        {contador !== undefined && (
-          <View style={styles.secaoContador}>
-            <Text style={styles.secaoContadorText}>{contador}</Text>
-          </View>
-        )}
-        {subtitulo ? <Text style={styles.secaoSub}>{subtitulo}</Text> : null}
+    <Card style={styles.post} onPress={onPress}>
+      <View style={styles.postHeader}>
+        <View style={styles.postAvatar}>
+          <Icon name={icone} size={20} color={colors.primary} />
+        </View>
+        <View style={{ flex: 1 }}>
+          <Text style={styles.postTitulo} numberOfLines={1}>
+            {titulo}
+          </Text>
+          {sub ? (
+            <Text style={styles.postSub} numberOfLines={1}>
+              {sub}
+            </Text>
+          ) : null}
+        </View>
+        {unread ? <View style={styles.postDot} /> : null}
       </View>
-      {acao ? (
-        <TouchableOpacity onPress={acao.onPress} hitSlop={6}>
-          <Text style={styles.secaoAcao}>{acao.label}</Text>
-        </TouchableOpacity>
-      ) : null}
-    </View>
-  );
-}
-
-function VazioCard({ texto, styles }: { texto: string; styles: ReturnType<typeof criarEstilos> }) {
-  return (
-    <Card>
-      <Text style={styles.vazioText}>{texto}</Text>
+      {children}
     </Card>
   );
 }
@@ -599,4 +487,66 @@ const criarEstilos = (colors: Cores, shadows: Sombras) =>
     promoIcon: { width: 46, height: 46, borderRadius: radius.lg, backgroundColor: colors.accentSoft, alignItems: 'center', justifyContent: 'center' },
     promoTitulo: { ...typography.body, color: colors.text, fontFamily: fonts.semibold },
     promoSub: { ...typography.caption, color: colors.textSecondary, marginTop: 1 },
+    // --- Instagram look ---
+    topbar: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      paddingHorizontal: spacing.lg,
+      paddingVertical: spacing.sm,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.border,
+      width: '100%',
+      maxWidth: LARGURA_CONTEUDO,
+      alignSelf: 'center',
+    },
+    wordmark: { ...typography.h2, color: colors.text, fontFamily: fonts.bold },
+    topbarBtn: { width: 40, height: 40, alignItems: 'center', justifyContent: 'center' },
+    storiesWrap: { flexGrow: 0, marginHorizontal: -spacing.lg },
+    stories: { paddingHorizontal: spacing.lg, gap: spacing.md, paddingVertical: spacing.xs },
+    story: { alignItems: 'center', gap: 6, width: 68 },
+    storyRing: {
+      width: 62,
+      height: 62,
+      borderRadius: 31,
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: 3,
+    },
+    storyInner: {
+      width: '100%',
+      height: '100%',
+      borderRadius: 28,
+      backgroundColor: colors.surface,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    storyLabel: { ...typography.caption, color: colors.textSecondary, maxWidth: 64, textAlign: 'center' },
+    post: { gap: spacing.md, borderRadius: radius.xxl, padding: spacing.lg, ...shadows.sm },
+    postHeader: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
+    postAvatar: {
+      width: 40,
+      height: 40,
+      borderRadius: radius.pill,
+      backgroundColor: colors.primarySoft,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    postTitulo: { ...typography.body, color: colors.text, fontFamily: fonts.semibold },
+    postSub: { ...typography.caption, color: colors.textSecondary, marginTop: 1 },
+    postDot: { width: 8, height: 8, borderRadius: 4, backgroundColor: colors.primary },
+    postCorpo: { ...typography.bodySmall, color: colors.textSecondary },
+    postServindo: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
+    postServindoTxt: { ...typography.caption, color: colors.textMuted },
+    postBotao: {
+      backgroundColor: colors.primary,
+      borderRadius: radius.pill,
+      paddingVertical: spacing.sm,
+      alignItems: 'center',
+    },
+    postBotaoText: { ...typography.bodySmall, color: colors.textInverse, fontFamily: fonts.semibold },
+    anivLista: { gap: spacing.sm },
+    anivItem: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
+    anivNome: { ...typography.bodySmall, color: colors.text, flex: 1, fontFamily: fonts.semibold },
+    anivData: { ...typography.caption, color: colors.textSecondary },
   });
