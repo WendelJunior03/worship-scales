@@ -9,14 +9,28 @@ function garantirEstilos() {
   estilosInjetados = true;
   const el = document.createElement('style');
   el.textContent = `
-    .wsp-anim-icon { display: inline-flex; transition: transform .2s ease; will-change: transform; }
+    /* Movimento contínuo e sutil — visível no celular sem precisar tocar (lá não há
+       hover). O toque no card navega, então uma animação "só no toque" não apareceria. */
+    .wsp-anim-icon {
+      display: inline-flex;
+      will-change: transform;
+      animation: wsp-anim-icon-float 3s ease-in-out infinite;
+    }
+    /* No desktop, passar o mouse faz uma graça mais forte. */
     .wsp-anim-icon:hover { animation: wsp-anim-icon-wiggle .6s ease-in-out; }
+    @keyframes wsp-anim-icon-float {
+      0%, 100% { transform: translateY(0) rotate(0deg); }
+      50% { transform: translateY(-3px) rotate(3deg); }
+    }
     @keyframes wsp-anim-icon-wiggle {
       0%, 100% { transform: rotate(0deg) scale(1); }
       20% { transform: rotate(-9deg) scale(1.12); }
       45% { transform: rotate(9deg) scale(1.12); }
       70% { transform: rotate(-5deg) scale(1.08); }
       85% { transform: rotate(3deg) scale(1.04); }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .wsp-anim-icon { animation: none; }
     }
   `;
   document.head.appendChild(el);
