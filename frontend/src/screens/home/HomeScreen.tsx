@@ -128,7 +128,7 @@ export function HomeScreen() {
 
   return (
     <SafeAreaView style={styles.screen} edges={['left', 'right']}>
-      {/* Top bar preenchida: gradiente teal→coral que sobe até atrás da status bar. */}
+      {/* Top bar preenchida: gradiente primária→destaque que sobe até atrás da status bar. */}
       <LinearGradient
         colors={[colors.primary, colors.accent]}
         start={{ x: 0, y: 0 }}

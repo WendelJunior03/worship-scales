@@ -1,4 +1,4 @@
-// Tema DARK/PRO (referência de apps de áudio profissionais) — acento AZUL.
+// LEGADO: tokens estáticos antigos (as telas usam palettes.ts via useTheme).
 // Base do design system: todas as telas consomem estes tokens, então trocar aqui
 // vira o app inteiro. Cores de "instrumento" (borracha do pad etc.) ficam locais.
 export const colors = {

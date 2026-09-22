@@ -8,7 +8,7 @@ let html = fs.readFileSync(indexPath, 'utf8');
 
 const tags = `
   <link rel="manifest" href="/manifest.json" />
-  <meta name="theme-color" content="#14B8A6" />
+  <meta name="theme-color" content="#6D8196" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
