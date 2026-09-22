@@ -32,4 +32,6 @@ export interface AnimatedIconProps {
   color?: string;
   /** Se anima em loop contínuo (web). Default: true. */
   loop?: boolean;
+  /** Velocidade da animação (web). <1 = mais lento. Default: 0.55. */
+  speed?: number;
 }
