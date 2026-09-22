@@ -4,7 +4,7 @@ import { ActivityIndicator, Platform, View } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { StatusBar } from 'expo-status-bar';
 import { InitialState, NavigationContainer } from '@react-navigation/native';
-import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-context';
 import {
   useFonts,
   PlusJakartaSans_400Regular,
@@ -108,7 +108,8 @@ export default function App() {
 
 // Fica dentro do ThemeProvider pra ler o tema (loading temático + StatusBar dinâmico).
 function RaizApp({ pronto, initialState }: { pronto: boolean; initialState?: InitialState }) {
-  const { colors, modo } = useTheme();
+  const { colors } = useTheme();
+  const insets = useSafeAreaInsets();
 
   if (!pronto) {
     return (
@@ -131,7 +132,22 @@ function RaizApp({ pronto, initialState }: { pronto: boolean; initialState?: Ini
       <ConfirmDialogHost />
       <ToastHost />
       <InstallPwaHost />
-      <StatusBar style={modo === 'escuro' ? 'light' : 'dark'} />
+      {/* Faixa da status bar (o app desenha sob ela via meta black-translucent):
+          teal em todas as telas pra o relógio branco ler bem e o topo ficar preenchido. */}
+      {insets.top > 0 && (
+        <View
+          pointerEvents="none"
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            height: insets.top,
+            backgroundColor: colors.primary,
+          }}
+        />
+      )}
+      <StatusBar style="light" />
     </NavigationContainer>
   );
 }
