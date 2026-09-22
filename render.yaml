@@ -55,3 +55,10 @@ services:
       # --- Metadados de música (opcional) ---
       - key: GETSONGBPM_API_KEY
         sync: false
+      # --- Notificações push (Web Push) — gere com: npx web-push generate-vapid-keys ---
+      - key: VAPID_PUBLIC_KEY
+        sync: false
+      - key: VAPID_PRIVATE_KEY
+        sync: false
+      - key: VAPID_SUBJECT
+        sync: false
