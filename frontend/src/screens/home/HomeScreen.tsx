@@ -18,6 +18,7 @@ import { Aniversariante, Aviso, CultoResumo } from '@/types';
 import { spacing, radius, typography, fonts, LARGURA_CONTEUDO } from '@/theme';
 import { Cores, Sombras } from '@/theme/palettes';
 import { useTheme, useThemedStyles } from '@/contexts/ThemeContext';
+import { useAuth } from '@/contexts/AuthContext';
 
 function inicioDoDia(d: Date): number {
   const c = new Date(d);
@@ -60,6 +61,7 @@ const ATALHOS: { icon: IconName; label: string; route: 'Escalas' | 'Biblioteca' 
 
 export function HomeScreen() {
   const { colors } = useTheme();
+  const { user } = useAuth();
   const styles = useThemedStyles(criarEstilos);
   const navigation = useNavigation<MainTabScreenNavigationProp<'Home'>>();
   const insets = useSafeAreaInsets();
@@ -135,7 +137,10 @@ export function HomeScreen() {
         end={{ x: 0, y: 1 }}
         style={[styles.topbar, { paddingTop: insets.top + spacing.sm }]}
       >
-        <Text style={styles.wordmark}>Worship Stage</Text>
+        <View style={styles.saudacao}>
+          <Avatar nome={user?.nome ?? ''} fotoUrl={user?.foto_url} size={40} style={styles.saudacaoAvatar} />
+          <Text style={styles.wordmark}>Bem-vindo!</Text>
+        </View>
         <TouchableOpacity
           style={styles.topbarBtn}
           onPress={() => navigation.navigate('Notificacoes')}
@@ -504,6 +509,8 @@ const criarEstilos = (colors: Cores, shadows: Sombras) =>
       width: '100%',
     },
     wordmark: { ...typography.h2, color: '#FFFFFF', fontFamily: fonts.bold },
+    saudacao: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, flex: 1 },
+    saudacaoAvatar: { borderWidth: 2, borderColor: 'rgba(255,255,255,0.85)' },
     topbarBtn: { width: 40, height: 40, alignItems: 'center', justifyContent: 'center' },
     storiesWrap: { flexGrow: 0, marginHorizontal: -spacing.lg },
     stories: { paddingHorizontal: spacing.lg, gap: spacing.md, paddingVertical: spacing.xs },
