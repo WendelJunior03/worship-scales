@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { Card } from '@/components/Card';
@@ -115,6 +115,13 @@ export function RecursosScreen() {
   const [ativa, setAtiva] = useState(0);
   const cat = categorias[Math.min(ativa, categorias.length - 1)];
 
+  // Grid responsivo: nº de colunas conforme a largura útil (2 no celular, mais em
+  // telas largas). A largura do card é derivada pra preencher a linha certinho.
+  const { width } = useWindowDimensions();
+  const larguraUtil = Math.min(width, LARGURA_CONTEUDO) - spacing.lg * 2;
+  const colunas = larguraUtil < 420 ? 2 : larguraUtil < 640 ? 3 : 4;
+  const larguraCard = Math.floor((larguraUtil - spacing.md * (colunas - 1)) / colunas);
+
   return (
     <SafeAreaView style={styles.screen} edges={['top']}>
       <View style={styles.container}>
@@ -146,43 +153,39 @@ export function RecursosScreen() {
           })}
         </ScrollView>
 
-        {/* Carrossel horizontal arrastável de cards da categoria ativa. */}
+        {/* Grid responsivo de cards da categoria ativa (2 por linha no celular). */}
         <ScrollView
           key={cat.id}
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          decelerationRate="fast"
-          snapToInterval={LARGURA_CARD + spacing.md}
-          snapToAlignment="start"
-          contentContainerStyle={styles.carrossel}
-          style={styles.carrosselWrap}
+          showsVerticalScrollIndicator={false}
+          style={styles.scroll}
+          contentContainerStyle={styles.scrollContent}
         >
-          {cat.itens.map((item) => (
-            <Card
-              key={item.label}
-              style={styles.card}
-              onPress={() => navigation.navigate(item.route)}
-            >
-              <View style={[styles.cardIcon, { backgroundColor: cat.corSoft(colors) }]}>
-                <AnimatedIcon animated={item.animated} fallback={item.icon} size={56} color={cat.cor(colors)} />
-              </View>
-              <View style={styles.cardTextos}>
-                <Text style={styles.cardLabel} numberOfLines={2}>
-                  {item.label}
-                </Text>
-                <Text style={styles.cardSublabel} numberOfLines={2}>
-                  {item.sublabel}
-                </Text>
-              </View>
-            </Card>
-          ))}
+          <View style={styles.grid}>
+            {cat.itens.map((item) => (
+              <Card
+                key={item.label}
+                style={StyleSheet.flatten([styles.card, { width: larguraCard }])}
+                onPress={() => navigation.navigate(item.route)}
+              >
+                <View style={[styles.cardIcon, { backgroundColor: cat.corSoft(colors) }]}>
+                  <AnimatedIcon animated={item.animated} fallback={item.icon} size={44} color={cat.cor(colors)} />
+                </View>
+                <View style={styles.cardTextos}>
+                  <Text style={styles.cardLabel} numberOfLines={2}>
+                    {item.label}
+                  </Text>
+                  <Text style={styles.cardSublabel} numberOfLines={2}>
+                    {item.sublabel}
+                  </Text>
+                </View>
+              </Card>
+            ))}
+          </View>
         </ScrollView>
       </View>
     </SafeAreaView>
   );
 }
-
-const LARGURA_CARD = 152;
 
 const criarEstilos = (colors: Cores, shadows: Sombras) =>
   StyleSheet.create({
@@ -241,24 +244,28 @@ const criarEstilos = (colors: Cores, shadows: Sombras) =>
     tabTxtAtiva: {
       color: colors.textInverse,
     },
-    carrosselWrap: {
-      flexGrow: 0,
+    scroll: {
+      flex: 1,
     },
-    carrossel: {
+    scrollContent: {
       paddingHorizontal: spacing.lg,
-      paddingVertical: spacing.md,
+      paddingTop: spacing.sm,
+      paddingBottom: spacing.xl,
+    },
+    grid: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
       gap: spacing.md,
     },
     card: {
-      width: LARGURA_CARD,
       borderRadius: radius.xxl,
-      gap: spacing.md,
+      gap: spacing.sm,
       ...shadows.sm,
     },
     cardIcon: {
       width: '100%',
-      height: 92,
-      borderRadius: radius.xl,
+      height: 64,
+      borderRadius: radius.lg,
       alignItems: 'center',
       justifyContent: 'center',
     },
