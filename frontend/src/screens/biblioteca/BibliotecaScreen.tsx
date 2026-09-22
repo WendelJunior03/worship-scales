@@ -11,6 +11,7 @@ import {
   View,
 } from 'react-native';
 import { Icon } from '@/components/Icon';
+import { AnimatedIcon } from '@/components/AnimatedIcon';
 import { EmptyState } from '@/components/EmptyState';
 import { Skeleton } from '@/components/Skeleton';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
@@ -262,7 +263,7 @@ export function BibliotecaScreen() {
         <Image source={{ uri: item.capa_url }} style={styles.cardCapa} />
       ) : (
         <View style={styles.cardIcone}>
-          <Icon name="musical-notes-outline" size={20} color={colors.primary} />
+          <AnimatedIcon fallback="musical-notes-outline" size={32} color={colors.primary} />
         </View>
       )}
       <View style={styles.cardInfo}>
@@ -326,7 +327,7 @@ export function BibliotecaScreen() {
           renderItem={({ item }) => (
             <Card style={styles.card} onPress={() => navigation.navigate('Pasta', { pastaId: item.id, nome: item.nome })}>
               <View style={styles.cardIcone}>
-                <Icon name="folder-outline" size={20} color={colors.primary} />
+                <AnimatedIcon fallback="folder-outline" size={32} color={colors.primary} />
               </View>
               <View style={styles.cardInfo}>
                 <Text style={styles.cardNome}>{item.nome}</Text>
@@ -362,7 +363,7 @@ export function BibliotecaScreen() {
             }}
           >
             <View style={styles.cardIcone}>
-              <Icon name="person-outline" size={20} color={colors.primary} />
+              <AnimatedIcon fallback="person-outline" size={32} color={colors.primary} />
             </View>
             <View style={styles.cardInfo}>
               <Text style={styles.cardNome}>{item.artista}</Text>

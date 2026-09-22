@@ -9,6 +9,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Icon, IconName } from '@/components/Icon';
+import { AnimatedIcon } from '@/components/AnimatedIcon';
 import { Avatar } from '@/components/Avatar';
 import { Badge } from '@/components/Badge';
 import { Button } from '@/components/Button';
@@ -333,7 +334,7 @@ export function MinisterioScreen() {
             <View style={styles.secoes}>
               <Card style={styles.identCard}>
                 <View style={styles.identIcon}>
-                  <Icon name="business-outline" size={24} color={colors.primary} />
+                  <AnimatedIcon fallback="business-outline" size={38} color={colors.primary} />
                 </View>
                 <View style={{ flex: 1 }}>
                   <Text style={styles.identNome}>{ministerio.nome}</Text>
@@ -667,7 +668,7 @@ function LinhaInfo({
   const conteudo = (
     <View style={styles.linha}>
       <View style={[styles.linhaIcon, bloqueado && styles.linhaIconBloqueada]}>
-        <Icon name={icon} size={18} color={bloqueado ? colors.textMuted : colors.primary} />
+        <AnimatedIcon fallback={icon} size={28} color={bloqueado ? colors.textMuted : colors.primary} />
       </View>
       <View style={styles.linhaInfo}>
         <Text style={[styles.linhaLabel, bloqueado && styles.linhaLabelBloqueada]}>{label}</Text>
