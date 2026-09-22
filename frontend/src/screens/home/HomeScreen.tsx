@@ -2,9 +2,8 @@ import React, { useCallback, useState } from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { Badge } from '@/components/Badge';
 import { Card } from '@/components/Card';
-import { Icon } from '@/components/Icon';
+import { Icon, IconName } from '@/components/Icon';
 import { Skeleton } from '@/components/Skeleton';
-import { RingStat } from '@/components/RingStat';
 import { Avatar } from '@/components/Avatar';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
@@ -53,6 +52,15 @@ function formatAniversario(iso: string): string {
   const [, mm, dd] = iso.split('-');
   return `${Number(dd)} de ${MESES_ANIV[Number(mm) - 1] ?? ''}`;
 }
+
+/** Atalhos rápidos do topo — as ações que o membro mais usa no dia a dia. */
+const ATALHOS: { icon: IconName; label: string; route: 'Escalas' | 'Biblioteca' | 'Afinador' | 'Metronomo' | 'Ministerio' }[] = [
+  { icon: 'calendar-outline', label: 'Escalas', route: 'Escalas' },
+  { icon: 'musical-notes', label: 'Repertório', route: 'Biblioteca' },
+  { icon: 'speedometer-outline', label: 'Afinador', route: 'Afinador' },
+  { icon: 'timer-outline', label: 'Metrônomo', route: 'Metronomo' },
+  { icon: 'business-outline', label: 'Ministério', route: 'Ministerio' },
+];
 
 export function HomeScreen() {
   const { colors } = useTheme();
@@ -114,8 +122,6 @@ export function HomeScreen() {
 
   // Resumo do hero (dados reais já carregados).
   const proximaEscala = minhasEscalas[0];
-  const confirmadas = minhasEscalas.filter((c) => c.minha_situacao === 'confirmado').length;
-  const confPct = minhasEscalas.length ? (confirmadas / minhasEscalas.length) * 100 : 0;
 
   if (isLoading) {
     return (
@@ -184,22 +190,60 @@ export function HomeScreen() {
               <Icon name="calendar-outline" size={22} color={colors.accent} />
             </View>
           </View>
-          <View style={styles.heroRings}>
-            <RingStat percent={confPct} valor={`${confirmadas}`} label="Confirmadas" cores={colors.accentGradient} />
-            <RingStat
-              percent={(Math.min(ministerios.length, 6) / 6) * 100}
-              valor={`${ministerios.length}`}
-              label="Ministérios"
-              cores={['#6E9BFF', '#4C82FF']}
-            />
-            <RingStat
-              percent={(Math.min(avisos.length, 5) / 5) * 100}
-              valor={`${avisos.length}`}
-              label="Comunicados"
-              cores={['#A78BFA', '#7C5CFF']}
-            />
-          </View>
+          {proximaEscala && (
+            <View style={styles.heroFooter}>
+              {proximaEscala.participantes.length > 0 ? (
+                <View style={styles.avatares}>
+                  {proximaEscala.participantes.slice(0, 4).map((p, i) => (
+                    <Avatar
+                      key={p.membro_id}
+                      nome={p.nome}
+                      fotoUrl={p.foto}
+                      size={30}
+                      style={[styles.avatarBorda, i > 0 ? styles.avatarSobreposto : undefined]}
+                    />
+                  ))}
+                  {proximaEscala.participantes.length > 4 && (
+                    <View style={[styles.avatarPeq, styles.avatarSobreposto, styles.avatarMais]}>
+                      <Text style={styles.avatarPeqText}>+{proximaEscala.participantes.length - 4}</Text>
+                    </View>
+                  )}
+                </View>
+              ) : (
+                <View />
+              )}
+              <TouchableOpacity
+                style={styles.heroBotao}
+                onPress={() => navigation.navigate('DetalhesCulto', { cultoId: proximaEscala.id })}
+              >
+                <Text style={styles.heroBotaoText}>
+                  {proximaEscala.minha_situacao === 'confirmado' ? 'Ver escala' : 'Confirmar presença'}
+                </Text>
+                <Icon name="chevron-forward" size={16} color={colors.textInverse} />
+              </TouchableOpacity>
+            </View>
+          )}
         </LinearGradient>
+
+        {/* Atalhos rápidos */}
+        <View style={styles.atalhos}>
+          {ATALHOS.map((a) => (
+            <TouchableOpacity
+              key={a.label}
+              style={styles.atalho}
+              onPress={() => navigation.navigate(a.route)}
+              accessibilityRole="button"
+              accessibilityLabel={a.label}
+            >
+              <View style={styles.atalhoIcon}>
+                <Icon name={a.icon} size={22} color={colors.primary} />
+              </View>
+              <Text style={styles.atalhoLabel} numberOfLines={1}>
+                {a.label}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </View>
 
         {error ? (
           <Card style={styles.centeredCard}>
@@ -462,7 +506,39 @@ const criarEstilos = (colors: Cores, shadows: Sombras) =>
       alignItems: 'center',
       justifyContent: 'center',
     },
-    heroRings: { flexDirection: 'row', justifyContent: 'space-around', marginTop: spacing.xs },
+    heroFooter: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      gap: spacing.md,
+      marginTop: spacing.xs,
+    },
+    heroBotao: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 4,
+      backgroundColor: colors.primary,
+      paddingVertical: spacing.sm,
+      paddingHorizontal: spacing.md,
+      borderRadius: radius.pill,
+    },
+    heroBotaoText: { ...typography.bodySmall, color: colors.textInverse, fontFamily: fonts.semibold },
+    atalhos: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      gap: spacing.sm,
+      marginTop: spacing.md,
+    },
+    atalho: { flex: 1, alignItems: 'center', gap: 6 },
+    atalhoIcon: {
+      width: 54,
+      height: 54,
+      borderRadius: radius.lg,
+      backgroundColor: colors.primarySoft,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    atalhoLabel: { ...typography.caption, color: colors.textSecondary, textAlign: 'center' },
     scroll: { flex: 1 },
     content: {
       width: '100%',
