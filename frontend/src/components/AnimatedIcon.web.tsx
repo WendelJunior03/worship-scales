@@ -1,51 +1,40 @@
-import React from 'react';
-import UseAnimations from 'react-useanimations';
-import activity from 'react-useanimations/lib/activity';
-import radioButton from 'react-useanimations/lib/radioButton';
-import playPause from 'react-useanimations/lib/playPause';
-import volume from 'react-useanimations/lib/volume';
-import folder from 'react-useanimations/lib/folder';
-import video from 'react-useanimations/lib/video';
-import calendar from 'react-useanimations/lib/calendar';
-import star from 'react-useanimations/lib/star';
-import notification from 'react-useanimations/lib/notification';
-import home from 'react-useanimations/lib/home';
-import explore from 'react-useanimations/lib/explore';
-import userPlus from 'react-useanimations/lib/userPlus';
-import checkmark from 'react-useanimations/lib/checkmark';
-import bookmark from 'react-useanimations/lib/bookmark';
-import toggle from 'react-useanimations/lib/toggle';
-import { AnimatedIconName, AnimatedIconProps } from './AnimatedIcon.types';
+import React, { useEffect } from 'react';
+import { Icon } from './Icon';
+import { AnimatedIconProps } from './AnimatedIcon.types';
 
-// Cada animação do react-useanimations é um import próprio; o mapa liga o nome ao módulo.
-// Todas compartilham o mesmo tipo Animation, então `typeof activity` serve de valor.
-const MAPA: Record<AnimatedIconName, typeof activity> = {
-  activity,
-  radioButton,
-  playPause,
-  volume,
-  folder,
-  video,
-  calendar,
-  star,
-  notification,
-  home,
-  explore,
-  userPlus,
-  checkmark,
-  bookmark,
-  toggle,
-};
+// Injeta as keyframes uma única vez no documento.
+let estilosInjetados = false;
+function garantirEstilos() {
+  if (estilosInjetados || typeof document === 'undefined') return;
+  estilosInjetados = true;
+  const el = document.createElement('style');
+  el.textContent = `
+    .wsp-anim-icon { display: inline-flex; transition: transform .2s ease; will-change: transform; }
+    .wsp-anim-icon:hover { animation: wsp-anim-icon-wiggle .6s ease-in-out; }
+    @keyframes wsp-anim-icon-wiggle {
+      0%, 100% { transform: rotate(0deg) scale(1); }
+      20% { transform: rotate(-9deg) scale(1.12); }
+      45% { transform: rotate(9deg) scale(1.12); }
+      70% { transform: rotate(-5deg) scale(1.08); }
+      85% { transform: rotate(3deg) scale(1.04); }
+    }
+  `;
+  document.head.appendChild(el);
+}
 
 /**
- * Ícone animado (web) via react-useanimations (MIT, Lottie). Anima em loop suave por
- * padrão pra dar a "identidade viva" da tela de Recursos. No nativo, o AnimatedIcon.tsx
- * cai no ícone estático equivalente.
+ * Ícone animado (web): é um ícone Lucide (o mesmo do resto do app) que faz uma
+ * animação ao passar o mouse / tocar, via CSS — sem interceptar o clique do card.
+ * No nativo, o AnimatedIcon.tsx renderiza o mesmo Lucide. Substitui o
+ * react-useanimations (Lottie).
  */
-export function AnimatedIcon({ animated, size = 44, color, speed = 0.55 }: AnimatedIconProps) {
-  // Sem autoplay/loop: o react-useanimations anima ao passar o mouse (desktop) ou ao
-  // tocar (mobile), e fica parado no resto do tempo — não polui com dezenas de loops.
-  return <UseAnimations animation={MAPA[animated]} size={size} strokeColor={color} speed={speed} />;
+export function AnimatedIcon({ fallback, size = 44, color }: AnimatedIconProps) {
+  useEffect(garantirEstilos, []);
+  return (
+    <div className="wsp-anim-icon">
+      <Icon name={fallback} size={Math.round(size * 0.62)} color={color} />
+    </div>
+  );
 }
 
 export type { AnimatedIconName } from './AnimatedIcon.types';
