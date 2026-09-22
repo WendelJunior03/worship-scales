@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, Alert, Modal, Platform, ScrollView, Share, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { Icon, IconName } from '@/components/Icon';
+import { AnimatedIcon } from '@/components/AnimatedIcon';
 import { useNavigation } from '@react-navigation/native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Badge } from '@/components/Badge';
@@ -61,7 +62,7 @@ function RecursoProRow({
   const { liberado, isPro } = useRecurso(chave);
   return (
     <View style={styles.recursoRow}>
-      <Icon name={icon} size={18} color={colors.textSecondary} />
+      <AnimatedIcon fallback={icon} size={28} color={colors.textSecondary} />
       <Text style={styles.recursoLabel}>{label}</Text>
       {liberado ? (
         isPro && <SeloPro />
@@ -379,7 +380,7 @@ export function PerfilScreen() {
               style={styles.menuItem}
               onPress={() => handleMenuPress(item.label)}
             >
-              <Icon name={item.icon} size={20} color={colors.textSecondary} />
+              <AnimatedIcon fallback={item.icon} size={32} color={colors.textSecondary} />
               <Text style={styles.menuLabel}>{item.label}</Text>
               <Icon name="chevron-forward" size={18} color={colors.textMuted} />
             </TouchableOpacity>
