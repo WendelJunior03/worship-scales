@@ -5,6 +5,7 @@ import { Icon, IconName } from '@/components/Icon';
 import { AnimatedIcon } from '@/components/AnimatedIcon';
 import { Skeleton } from '@/components/Skeleton';
 import { Avatar } from '@/components/Avatar';
+import { CardAtivarPush } from '@/components/CardAtivarPush';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -185,6 +186,8 @@ export function HomeScreen() {
             </TouchableOpacity>
           ))}
         </ScrollView>
+
+        <CardAtivarPush />
 
         {/* Post: próxima escala */}
         <PostCard

@@ -18,6 +18,7 @@ import { ApiError } from '@/services/api';
 import { papelOrgLabel, papelOrgTone, papelOrgDe, papelMinisterioLabel, isAdmin } from '@/utils/papel';
 import { SeloPro } from '@/components/SeloPro';
 import { SeletorTema } from '@/components/SeletorTema';
+import { NotificacoesPushBloco } from '@/components/NotificacoesPushBloco';
 import { SectionHeader } from '@/components/SectionHeader';
 import { Avatar } from '@/components/Avatar';
 import { Modal as BottomSheet } from '@/components/Modal';
@@ -372,6 +373,8 @@ export function PerfilScreen() {
           <SectionHeader titulo="Aparência" />
           <SeletorTema />
         </View>
+
+        <NotificacoesPushBloco />
 
         <View style={styles.menu}>
           {MENU_ITEMS.map((item) => (
