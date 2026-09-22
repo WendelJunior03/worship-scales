@@ -42,8 +42,10 @@ const MAPA: Record<AnimatedIconName, typeof activity> = {
  * padrão pra dar a "identidade viva" da tela de Recursos. No nativo, o AnimatedIcon.tsx
  * cai no ícone estático equivalente.
  */
-export function AnimatedIcon({ animated, size = 44, color, loop = true }: AnimatedIconProps) {
-  return <UseAnimations animation={MAPA[animated]} size={size} strokeColor={color} autoplay loop={loop} />;
+export function AnimatedIcon({ animated, size = 44, color, loop = true, speed = 0.55 }: AnimatedIconProps) {
+  return (
+    <UseAnimations animation={MAPA[animated]} size={size} strokeColor={color} autoplay loop={loop} speed={speed} />
+  );
 }
 
 export type { AnimatedIconName } from './AnimatedIcon.types';

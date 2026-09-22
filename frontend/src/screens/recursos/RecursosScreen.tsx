@@ -127,6 +127,7 @@ export function RecursosScreen() {
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
+          style={styles.tabsScroll}
           contentContainerStyle={styles.tabs}
         >
           {categorias.map((c, i) => {
@@ -181,7 +182,7 @@ export function RecursosScreen() {
   );
 }
 
-const LARGURA_CARD = 168;
+const LARGURA_CARD = 152;
 
 const criarEstilos = (colors: Cores, shadows: Sombras) =>
   StyleSheet.create({
@@ -209,10 +210,16 @@ const criarEstilos = (colors: Cores, shadows: Sombras) =>
       color: colors.textSecondary,
       marginTop: 2,
     },
+    // flexGrow:0 impede o ScrollView horizontal de esticar na vertical e ocupar a tela.
+    tabsScroll: {
+      flexGrow: 0,
+      flexShrink: 0,
+    },
     tabs: {
       paddingHorizontal: spacing.lg,
       paddingVertical: spacing.sm,
       gap: spacing.sm,
+      alignItems: 'center',
     },
     tab: {
       paddingHorizontal: spacing.lg,
@@ -250,7 +257,7 @@ const criarEstilos = (colors: Cores, shadows: Sombras) =>
     },
     cardIcon: {
       width: '100%',
-      height: 110,
+      height: 92,
       borderRadius: radius.xl,
       alignItems: 'center',
       justifyContent: 'center',
