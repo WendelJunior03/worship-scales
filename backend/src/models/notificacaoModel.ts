@@ -1,4 +1,5 @@
 import { query } from '../config/database';
+import { enviarPushParaMembro } from '../services/pushService';
 
 export async function createNotificacao(
     membroId: number,
@@ -13,6 +14,13 @@ export async function createNotificacao(
         'INSERT INTO notificacoes (membro_id, tipo, titulo, descricao, culto_id, referencia_tipo, referencia_id) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *',
         [membroId, tipo, titulo, descricao, cultoId ?? null, referenciaTipo ?? null, referenciaId ?? null],
     );
+    // Todo aviso do sino também vira push no celular (app fechado). Sem await: o push
+    // não atrasa a resposta e nunca lança (ver pushService).
+    void enviarPushParaMembro(membroId, {
+        titulo,
+        corpo: descricao,
+        url: cultoId ? `/cultos/${cultoId}` : '/notificacoes',
+    });
     return result.rows[0];
 }
 

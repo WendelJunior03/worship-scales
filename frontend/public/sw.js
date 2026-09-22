@@ -9,6 +9,8 @@
  *     - assets estáticos (nome com hash): cache-first → rápidos e seguros (um deploy
  *       novo gera nomes novos, então nunca serve um asset defasado).
  *  Só intercepta o próprio domínio; chamadas à API (Render) e a terceiros passam direto.
+ *  3) Notificações push: mostra os avisos do sino com o app fechado e, ao tocar, abre
+ *     (ou foca) o app na tela do aviso.
  */
 const CACHE = 'worship-stage-v1';
 const SHELL = ['/', '/index.html', '/manifest.json'];
@@ -57,6 +59,39 @@ self.addEventListener('fetch', (event) => {
         }
         return resp;
       });
+    }),
+  );
+});
+
+// --- Notificações push ---
+// Payload enviado pelo backend (pushService): { titulo, corpo, url }.
+self.addEventListener('push', (event) => {
+  let dados = {};
+  try {
+    dados = event.data ? event.data.json() : {};
+  } catch {
+    dados = { corpo: event.data ? event.data.text() : '' };
+  }
+  event.waitUntil(
+    self.registration.showNotification(dados.titulo || 'Worship Stage', {
+      body: dados.corpo || '',
+      icon: '/icon-192.png',
+      badge: '/icon-192.png',
+      data: { url: dados.url || '/notificacoes' },
+    }),
+  );
+});
+
+self.addEventListener('notificationclick', (event) => {
+  event.notification.close();
+  const destino = new URL(event.notification.data?.url || '/', self.location.origin).href;
+  event.waitUntil(
+    self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((abertas) => {
+      const janela = abertas.find((c) => new URL(c.url).origin === self.location.origin);
+      if (janela) {
+        return janela.focus().then((c) => (c && 'navigate' in c ? c.navigate(destino) : undefined));
+      }
+      return self.clients.openWindow(destino);
     }),
   );
 });

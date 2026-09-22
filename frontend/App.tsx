@@ -84,7 +84,11 @@ export default function App() {
   useEffect(() => {
     async function restoreState() {
       try {
-        const saved = await AsyncStorage.getItem(NAVIGATION_PERSISTENCE_KEY);
+        // No web, abrir por um link direto (ex.: toque numa notificação → /cultos/12)
+        // tem que ir pra essa tela, não pra última navegação salva.
+        const temDeepLink =
+          Platform.OS === 'web' && typeof window !== 'undefined' && window.location.pathname !== '/';
+        const saved = temDeepLink ? null : await AsyncStorage.getItem(NAVIGATION_PERSISTENCE_KEY);
         if (saved) {
           setInitialState(JSON.parse(saved));
         }

@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
+import * as push from '@/services/push';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { getToken, saveToken, clearToken, setUnauthorizedHandler } from '@/services/api';
 import * as authService from '@/services/auth';
@@ -115,6 +116,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }
 
   async function signOut() {
+    // Antes de apagar o token (a chamada é autenticada): este aparelho para de receber
+    // push desta conta. Best-effort — falha de rede não impede o logout.
+    await push.removerDoServidor().catch(() => {});
     await clearToken();
     await AsyncStorage.removeItem(NAVIGATION_PERSISTENCE_KEY);
     setUser(null);
