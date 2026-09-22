@@ -24,9 +24,9 @@ export type AnimatedIconName =
   | 'toggle';
 
 export interface AnimatedIconProps {
-  /** Ícone animado (web). */
-  animated: AnimatedIconName;
-  /** Ícone estático equivalente (lucide) usado no fallback nativo. */
+  /** Legado (react-useanimations). Opcional — hoje o ícone é sempre o Lucide `fallback`. */
+  animated?: AnimatedIconName;
+  /** Ícone Lucide de fato renderizado (web animado por CSS, nativo estático). */
   fallback: IconName;
   size?: number;
   color?: string;

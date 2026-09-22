@@ -2,6 +2,7 @@ import React, { useCallback, useState } from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { Card } from '@/components/Card';
 import { Icon, IconName } from '@/components/Icon';
+import { AnimatedIcon } from '@/components/AnimatedIcon';
 import { Skeleton } from '@/components/Skeleton';
 import { Avatar } from '@/components/Avatar';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -164,7 +165,7 @@ export function HomeScreen() {
                 style={styles.storyRing}
               >
                 <View style={styles.storyInner}>
-                  <Icon name={a.icon} size={24} color={colors.primary} />
+                  <AnimatedIcon fallback={a.icon} size={38} color={colors.primary} />
                 </View>
               </LinearGradient>
               <Text style={styles.storyLabel} numberOfLines={1}>
@@ -318,7 +319,7 @@ function PostCard({
     <Card style={styles.post} onPress={onPress}>
       <View style={styles.postHeader}>
         <View style={styles.postAvatar}>
-          <Icon name={icone} size={20} color={colors.primary} />
+          <AnimatedIcon fallback={icone} size={32} color={colors.primary} />
         </View>
         <View style={{ flex: 1 }}>
           <Text style={styles.postTitulo} numberOfLines={1}>
