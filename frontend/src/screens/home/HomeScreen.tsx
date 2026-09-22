@@ -7,7 +7,7 @@ import { Skeleton } from '@/components/Skeleton';
 import { Avatar } from '@/components/Avatar';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { MainTabScreenNavigationProp } from '@/navigation/types';
 import * as notificacoesService from '@/services/notificacoes';
 import * as cultosService from '@/services/cultos';
@@ -62,6 +62,7 @@ export function HomeScreen() {
   const { colors } = useTheme();
   const styles = useThemedStyles(criarEstilos);
   const navigation = useNavigation<MainTabScreenNavigationProp<'Home'>>();
+  const insets = useSafeAreaInsets();
 
   const [minhasEscalas, setMinhasEscalas] = useState<CultoResumo[]>([]);
   const [aniversariantes, setAniversariantes] = useState<Aniversariante[]>([]);
@@ -126,9 +127,14 @@ export function HomeScreen() {
   }
 
   return (
-    <SafeAreaView style={styles.screen} edges={['top']}>
-      {/* Top bar estilo Instagram: wordmark + sino. */}
-      <View style={styles.topbar}>
+    <SafeAreaView style={styles.screen} edges={['left', 'right']}>
+      {/* Top bar preenchida: gradiente teal→coral que sobe até atrás da status bar. */}
+      <LinearGradient
+        colors={[colors.primary, colors.accent]}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 0 }}
+        style={[styles.topbar, { paddingTop: insets.top + spacing.sm }]}
+      >
         <Text style={styles.wordmark}>Worship Stage</Text>
         <TouchableOpacity
           style={styles.topbarBtn}
@@ -137,10 +143,10 @@ export function HomeScreen() {
           accessibilityRole="button"
           accessibilityLabel={temNotificacaoNaoLida ? 'Notificações (não lidas)' : 'Notificações'}
         >
-          <Icon name="notifications-outline" size={24} color={colors.text} />
+          <Icon name="notifications-outline" size={24} color="#FFFFFF" />
           {temNotificacaoNaoLida && <View style={styles.badgeDot} />}
         </TouchableOpacity>
-      </View>
+      </LinearGradient>
 
       <ScrollView style={styles.scroll} contentContainerStyle={styles.content}>
         {/* Stories: atalhos em círculos com anel (estilo IG). */}
@@ -373,7 +379,7 @@ const criarEstilos = (colors: Cores, shadows: Sombras) =>
       borderColor: colors.border,
       ...shadows.sm,
     },
-    badgeDot: { position: 'absolute', top: 10, right: 10, width: 8, height: 8, borderRadius: 4, backgroundColor: colors.error },
+    badgeDot: { position: 'absolute', top: 8, right: 8, width: 9, height: 9, borderRadius: 5, backgroundColor: '#FFFFFF', borderWidth: 1.5, borderColor: colors.accent },
     heroCard: {
       gap: spacing.md,
       borderColor: colors.border,
@@ -494,14 +500,10 @@ const criarEstilos = (colors: Cores, shadows: Sombras) =>
       alignItems: 'center',
       justifyContent: 'space-between',
       paddingHorizontal: spacing.lg,
-      paddingVertical: spacing.sm,
-      borderBottomWidth: 1,
-      borderBottomColor: colors.border,
+      paddingBottom: spacing.md,
       width: '100%',
-      maxWidth: LARGURA_CONTEUDO,
-      alignSelf: 'center',
     },
-    wordmark: { ...typography.h2, color: colors.text, fontFamily: fonts.bold },
+    wordmark: { ...typography.h2, color: '#FFFFFF', fontFamily: fonts.bold },
     topbarBtn: { width: 40, height: 40, alignItems: 'center', justifyContent: 'center' },
     storiesWrap: { flexGrow: 0, marginHorizontal: -spacing.lg },
     stories: { paddingHorizontal: spacing.lg, gap: spacing.md, paddingVertical: spacing.xs },
