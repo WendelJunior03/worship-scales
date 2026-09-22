@@ -20,7 +20,7 @@
     },
     "web": {
       "favicon": "./assets/favicon.png",
-      "themeColor": "#F4F6FB",
+      "themeColor": "#14B8A6",
       "backgroundColor": "#F4F6FB"
     },
     "plugins": [

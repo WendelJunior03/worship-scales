@@ -132,7 +132,7 @@ export function HomeScreen() {
       <LinearGradient
         colors={[colors.primary, colors.accent]}
         start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 0 }}
+        end={{ x: 0, y: 1 }}
         style={[styles.topbar, { paddingTop: insets.top + spacing.sm }]}
       >
         <Text style={styles.wordmark}>Worship Stage</Text>
