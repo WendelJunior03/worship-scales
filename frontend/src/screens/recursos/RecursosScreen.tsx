@@ -1,10 +1,10 @@
-import React from 'react';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import React, { useMemo, useState } from 'react';
+import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { Card } from '@/components/Card';
-import { SectionHeader } from '@/components/SectionHeader';
-import { Icon, IconName } from '@/components/Icon';
+import { AnimatedIcon, AnimatedIconName } from '@/components/AnimatedIcon';
+import { IconName } from '@/components/Icon';
 import { useAuth } from '@/contexts/AuthContext';
 import { useTheme, useThemedStyles } from '@/contexts/ThemeContext';
 import { MainTabScreenNavigationProp } from '@/navigation/types';
@@ -32,50 +32,65 @@ type RotaRecurso =
   | 'Integracoes';
 
 interface ItemRecurso {
-  icon: IconName;
+  animated: AnimatedIconName;
+  icon: IconName; // fallback estático (nativo)
   label: string;
   sublabel: string;
   route: RotaRecurso;
+  soAdmin?: boolean;
 }
 
-const INSTRUMENTOS: ItemRecurso[] = [
-  { icon: 'speedometer-outline', label: 'Afinador', sublabel: 'Afine o instrumento', route: 'Afinador' },
-  { icon: 'grid-outline', label: 'Octapad', sublabel: 'Pads de som', route: 'Octapad' },
-  { icon: 'timer-outline', label: 'Metrônomo', sublabel: 'BPM e tap tempo', route: 'Metronomo' },
-  { icon: 'pulse-outline', label: 'Pads Contínuos', sublabel: 'Banco de pads', route: 'PadContinuo' },
-  { icon: 'library-outline', label: 'Biblioteca', sublabel: 'Músicas, pastas e vídeos', route: 'Biblioteca' },
-  { icon: 'options-outline', label: 'Multitrack / VS', sublabel: 'Player de multitracks', route: 'Multitrack' },
-];
+interface Categoria {
+  id: string;
+  titulo: string;
+  cor: (c: Cores) => string;
+  corSoft: (c: Cores) => string;
+  itens: ItemRecurso[];
+  soGestao?: boolean;
+}
 
-const PESSOAL: ItemRecurso[] = [
+const CATEGORIAS: Categoria[] = [
   {
-    icon: 'calendar-outline',
-    label: 'Indisponibilidades',
-    sublabel: 'Datas que não posso servir',
-    route: 'Indisponibilidades',
+    id: 'instrumentos',
+    titulo: 'Instrumentos',
+    cor: (c) => c.accent,
+    corSoft: (c) => c.accentSoft,
+    itens: [
+      { animated: 'activity', icon: 'speedometer-outline', label: 'Afinador', sublabel: 'Afine o instrumento', route: 'Afinador' },
+      { animated: 'radioButton', icon: 'grid-outline', label: 'Octapad', sublabel: 'Pads de som', route: 'Octapad' },
+      { animated: 'playPause', icon: 'timer-outline', label: 'Metrônomo', sublabel: 'BPM e tap tempo', route: 'Metronomo' },
+      { animated: 'volume', icon: 'pulse-outline', label: 'Pads Contínuos', sublabel: 'Banco de pads', route: 'PadContinuo' },
+      { animated: 'folder', icon: 'library-outline', label: 'Biblioteca', sublabel: 'Músicas, pastas e vídeos', route: 'Biblioteca' },
+      { animated: 'video', icon: 'options-outline', label: 'Multitrack / VS', sublabel: 'Player de multitracks', route: 'Multitrack' },
+    ],
   },
   {
-    icon: 'gift-outline',
-    label: 'Aniversariantes',
-    sublabel: 'Do mês, por membro',
-    route: 'Aniversariantes',
+    id: 'pessoal',
+    titulo: 'Pessoal',
+    cor: (c) => c.primary,
+    corSoft: (c) => c.primarySoft,
+    itens: [
+      { animated: 'calendar', icon: 'calendar-outline', label: 'Indisponibilidades', sublabel: 'Datas que não posso servir', route: 'Indisponibilidades' },
+      { animated: 'star', icon: 'gift-outline', label: 'Aniversariantes', sublabel: 'Do mês, por membro', route: 'Aniversariantes' },
+      { animated: 'notification', icon: 'chatbubble-ellipses-outline', label: 'Comunicados', sublabel: 'Avisos da organização', route: 'Comunicados' },
+    ],
   },
   {
-    icon: 'chatbubble-ellipses-outline',
-    label: 'Comunicados',
-    sublabel: 'Avisos da organização',
-    route: 'Comunicados',
+    id: 'gestao',
+    titulo: 'Gestão',
+    soGestao: true,
+    cor: (c) => c.warning,
+    corSoft: () => 'rgba(242, 180, 83, 0.16)',
+    itens: [
+      { animated: 'home', icon: 'business-outline', label: 'Ministério', sublabel: 'Equipes e funções', route: 'Ministerio' },
+      { animated: 'calendar', icon: 'calendar-outline', label: 'Escalas', sublabel: 'Ver escalas', route: 'Escalas' },
+      { animated: 'explore', icon: 'stats-chart-outline', label: 'Panorama', sublabel: 'Escalas do mês', route: 'PanoramaEscalas' },
+      { animated: 'userPlus', icon: 'people-outline', label: 'Membros', sublabel: 'Gerenciar', route: 'Membros', soAdmin: true },
+      { animated: 'checkmark', icon: 'checkmark-done-outline', label: 'Confirmações', sublabel: 'Acompanhar', route: 'Confirmacoes' },
+      { animated: 'bookmark', icon: 'card-outline', label: 'Meu plano', sublabel: 'Assinatura PRO da organização', route: 'Assinaturas', soAdmin: true },
+      { animated: 'toggle', icon: 'key-outline', label: 'Integrações', sublabel: 'Tokens de API e Holyrics', route: 'Integracoes', soAdmin: true },
+    ],
   },
-];
-
-const GESTAO: (ItemRecurso & { soAdmin?: boolean })[] = [
-  { icon: 'business-outline', label: 'Ministério', sublabel: 'Equipes e funções', route: 'Ministerio' },
-  { icon: 'calendar-outline', label: 'Escalas', sublabel: 'Ver escalas', route: 'Escalas' },
-  { icon: 'stats-chart-outline', label: 'Panorama', sublabel: 'Escalas do mês', route: 'PanoramaEscalas' },
-  { icon: 'people-outline', label: 'Membros', sublabel: 'Gerenciar', route: 'Membros', soAdmin: true },
-  { icon: 'checkmark-done-outline', label: 'Confirmações', sublabel: 'Acompanhar', route: 'Confirmacoes' },
-  { icon: 'card-outline', label: 'Meu plano', sublabel: 'Assinatura PRO da organização', route: 'Assinaturas', soAdmin: true },
-  { icon: 'key-outline', label: 'Integrações', sublabel: 'Tokens de API e Holyrics', route: 'Integracoes', soAdmin: true },
 ];
 
 export function RecursosScreen() {
@@ -85,57 +100,100 @@ export function RecursosScreen() {
   const navigation = useNavigation<MainTabScreenNavigationProp<'Recursos'>>();
 
   const mostrarGestao = user ? podeGerir(user) : false;
-  const gestao = GESTAO.filter((item) => !item.soAdmin || (user && isAdmin(user)));
+  const ehAdmin = !!user && isAdmin(user);
 
-  // Cor por categoria (como os cards coloridos da referência), aplicada ao ícone.
-  const renderCard = (item: ItemRecurso, cor: string, corBg: string) => (
-    <Card key={item.label} style={styles.card} onPress={() => navigation.navigate(item.route)}>
-      <View style={[styles.cardIcon, { backgroundColor: corBg }]}>
-        <Icon name={item.icon} size={20} color={cor} />
-      </View>
-      <Text style={styles.cardLabel} numberOfLines={2}>
-        {item.label}
-      </Text>
-      <Text style={styles.cardSublabel} numberOfLines={2}>
-        {item.sublabel}
-      </Text>
-    </Card>
+  // Categorias visíveis pra este usuário (Gestão só p/ quem gere; itens só-admin filtrados).
+  const categorias = useMemo(
+    () =>
+      CATEGORIAS.filter((c) => !c.soGestao || mostrarGestao).map((c) => ({
+        ...c,
+        itens: c.itens.filter((i) => !i.soAdmin || ehAdmin),
+      })),
+    [mostrarGestao, ehAdmin],
   );
+
+  const [ativa, setAtiva] = useState(0);
+  const cat = categorias[Math.min(ativa, categorias.length - 1)];
 
   return (
     <SafeAreaView style={styles.screen} edges={['top']}>
-      <View style={styles.header}>
-        <Text style={styles.title}>Recursos</Text>
-        <Text style={styles.subtitle}>Ferramentas e gestão do ministério</Text>
+      <View style={styles.container}>
+        <View style={styles.header}>
+          <Text style={styles.title}>Recursos</Text>
+          <Text style={styles.subtitle}>Ferramentas e gestão do ministério</Text>
+        </View>
+
+        {/* Tabs em pílula (estilo "Most Viewed / Nearby / Latest" da referência). */}
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.tabs}
+        >
+          {categorias.map((c, i) => {
+            const sel = i === ativa;
+            return (
+              <Pressable
+                key={c.id}
+                onPress={() => setAtiva(i)}
+                style={[styles.tab, sel && styles.tabAtiva]}
+                accessibilityRole="tab"
+                accessibilityState={{ selected: sel }}
+              >
+                <Text style={[styles.tabTxt, sel && styles.tabTxtAtiva]}>{c.titulo}</Text>
+              </Pressable>
+            );
+          })}
+        </ScrollView>
+
+        {/* Carrossel horizontal arrastável de cards da categoria ativa. */}
+        <ScrollView
+          key={cat.id}
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          decelerationRate="fast"
+          snapToInterval={LARGURA_CARD + spacing.md}
+          snapToAlignment="start"
+          contentContainerStyle={styles.carrossel}
+          style={styles.carrosselWrap}
+        >
+          {cat.itens.map((item) => (
+            <Card
+              key={item.label}
+              style={styles.card}
+              onPress={() => navigation.navigate(item.route)}
+            >
+              <View style={[styles.cardIcon, { backgroundColor: cat.corSoft(colors) }]}>
+                <AnimatedIcon animated={item.animated} fallback={item.icon} size={56} color={cat.cor(colors)} />
+              </View>
+              <View style={styles.cardTextos}>
+                <Text style={styles.cardLabel} numberOfLines={2}>
+                  {item.label}
+                </Text>
+                <Text style={styles.cardSublabel} numberOfLines={2}>
+                  {item.sublabel}
+                </Text>
+              </View>
+            </Card>
+          ))}
+        </ScrollView>
       </View>
-
-      <ScrollView
-        style={styles.scroll}
-        contentContainerStyle={styles.content}
-        showsVerticalScrollIndicator={false}
-      >
-        <SectionHeader titulo="Instrumentos" />
-        <View style={styles.grid}>{INSTRUMENTOS.map((item) => renderCard(item, colors.accent, colors.accentSoft))}</View>
-
-        <SectionHeader titulo="Pessoal" />
-        <View style={styles.grid}>{PESSOAL.map((item) => renderCard(item, colors.primary, colors.primarySoft))}</View>
-
-        {mostrarGestao && (
-          <>
-            <SectionHeader titulo="Gestão" />
-            <View style={styles.grid}>{gestao.map((item) => renderCard(item, colors.warning, 'rgba(242, 180, 83, 0.16)'))}</View>
-          </>
-        )}
-      </ScrollView>
     </SafeAreaView>
   );
 }
+
+const LARGURA_CARD = 168;
 
 const criarEstilos = (colors: Cores, shadows: Sombras) =>
   StyleSheet.create({
     screen: {
       flex: 1,
       backgroundColor: colors.background,
+    },
+    container: {
+      flex: 1,
+      width: '100%',
+      maxWidth: LARGURA_CONTEUDO,
+      alignSelf: 'center',
     },
     header: {
       paddingHorizontal: spacing.lg,
@@ -151,42 +209,60 @@ const criarEstilos = (colors: Cores, shadows: Sombras) =>
       color: colors.textSecondary,
       marginTop: 2,
     },
-    scroll: {
-      flex: 1,
-    },
-    content: {
-      width: '100%',
-      maxWidth: LARGURA_CONTEUDO,
-      alignSelf: 'center',
-      padding: spacing.lg,
-      paddingTop: spacing.sm,
-      gap: spacing.md,
-    },
-    grid: {
-      flexDirection: 'row',
-      flexWrap: 'wrap',
+    tabs: {
+      paddingHorizontal: spacing.lg,
+      paddingVertical: spacing.sm,
       gap: spacing.sm,
     },
+    tab: {
+      paddingHorizontal: spacing.lg,
+      paddingVertical: spacing.sm,
+      borderRadius: radius.pill,
+      backgroundColor: colors.surface,
+      borderWidth: 1,
+      borderColor: colors.border,
+    },
+    tabAtiva: {
+      backgroundColor: colors.primary,
+      borderColor: colors.primary,
+    },
+    tabTxt: {
+      ...typography.body,
+      fontFamily: fonts.semibold,
+      color: colors.textSecondary,
+    },
+    tabTxtAtiva: {
+      color: colors.textInverse,
+    },
+    carrosselWrap: {
+      flexGrow: 0,
+    },
+    carrossel: {
+      paddingHorizontal: spacing.lg,
+      paddingVertical: spacing.md,
+      gap: spacing.md,
+    },
     card: {
-      width: '47%',
+      width: LARGURA_CARD,
       borderRadius: radius.xxl,
-      gap: 4,
+      gap: spacing.md,
       ...shadows.sm,
     },
     cardIcon: {
-      width: 44,
-      height: 44,
-      borderRadius: radius.lg,
+      width: '100%',
+      height: 110,
+      borderRadius: radius.xl,
       alignItems: 'center',
       justifyContent: 'center',
-      marginBottom: spacing.xs,
+    },
+    cardTextos: {
+      gap: 2,
     },
     cardLabel: {
       ...typography.body,
       color: colors.text,
       fontFamily: fonts.semibold,
       lineHeight: 20,
-      minHeight: 40,
     },
     cardSublabel: {
       ...typography.caption,
