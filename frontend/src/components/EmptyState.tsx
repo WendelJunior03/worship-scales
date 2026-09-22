@@ -2,7 +2,8 @@ import React from 'react';
 import { StyleSheet, Text, View, ViewStyle } from 'react-native';
 import { spacing, typography } from '@/theme';
 import { useTheme } from '@/contexts/ThemeContext';
-import { Icon, IconName } from './Icon';
+import { IconName } from './Icon';
+import { AnimatedIcon } from './AnimatedIcon';
 import { Button } from './Button';
 
 interface EmptyStateProps {
@@ -26,7 +27,7 @@ export function EmptyState({ icon, title, description, action, style }: EmptySta
     <View style={[styles.wrap, style]}>
       {icon ? (
         <View style={[styles.iconWrap, { backgroundColor: colors.surfaceElevated }]}>
-          <Icon name={icon} size={28} color={colors.textSecondary} />
+          <AnimatedIcon fallback={icon} size={44} color={colors.textSecondary} />
         </View>
       ) : null}
       <Text style={[styles.title, { color: colors.textPrimary }]}>{title}</Text>
