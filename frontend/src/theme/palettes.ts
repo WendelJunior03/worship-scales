@@ -19,7 +19,7 @@ export interface Cores {
   accentSoft: string;
   primaryGradient: readonly [string, string];
   bgGradient: readonly [string, string];
-  /** Gradiente de destaque (teal→azul) p/ hero, anéis e estados ativos. */
+  /** Gradiente de destaque p/ hero, anéis e estados ativos. */
   accentGradient: readonly [string, string];
   /** Gradiente sutil de fundo do card "hero" (destaque da tela). */
   heroGradient: readonly [string, string];
@@ -40,34 +40,34 @@ export interface Cores {
 
 export type Sombras = Record<'sm' | 'md' | 'lg', ViewStyle>;
 
-// --- Tema ESCURO (dark/pro) ---
+// --- Tema ESCURO (Ink wash: grafite + azul-ardósia) ---
 export const paletaEscura: Cores = {
-  background: '#0A0F1A',
-  surface: '#131D31',
-  surfaceElevated: '#1B2942',
-  surfaceMuted: '#243657',
-  primary: '#4C82FF',
-  primaryDark: '#3567E0',
-  primaryLight: '#6E9BFF',
-  primarySoft: 'rgba(76, 130, 255, 0.16)',
-  accent: '#22D3EE',
-  accentSoft: 'rgba(34, 211, 238, 0.16)',
-  primaryGradient: ['#5A8CFF', '#3D6FE6'],
-  bgGradient: ['#101A2E', '#0A0F1A'],
-  accentGradient: ['#22D3EE', '#3B82F6'],
-  heroGradient: ['#213A5E', '#122C3E'],
-  glow: '#22D3EE',
-  text: '#EAF1FC',
-  textPrimary: '#EAF1FC',
-  textSecondary: '#93A1BA',
-  textMuted: '#5D6B84',
+  background: '#2B2B2B',
+  surface: '#3A3A3A',
+  surfaceElevated: '#4A4A4A',
+  surfaceMuted: '#555555',
+  primary: '#6D8196',
+  primaryDark: '#5A6C80',
+  primaryLight: '#8A9CB0',
+  primarySoft: 'rgba(138, 156, 176, 0.18)',
+  accent: '#8A9CB0',
+  accentSoft: 'rgba(138, 156, 176, 0.16)',
+  primaryGradient: ['#7C90A5', '#5A6C80'],
+  bgGradient: ['#333333', '#2B2B2B'],
+  accentGradient: ['#8A9CB0', '#6D8196'],
+  heroGradient: ['#46505B', '#353A40'],
+  glow: '#8A9CB0',
+  text: '#FFFFE3',
+  textPrimary: '#FFFFE3',
+  textSecondary: '#CBCBCB',
+  textMuted: '#8E8E8E',
   textInverse: '#FFFFFF',
-  border: '#26344E',
-  success: '#3DD68C',
-  warning: '#F2B453',
-  error: '#FF5C6C',
-  info: '#4C82FF',
-  papel: { admin: '#4C82FF', ministro: '#6E9BFF', vocal: '#22D3EE', membro: '#5D6B84' },
+  border: '#5A5A5A',
+  success: '#7FB38F',
+  warning: '#D6B26E',
+  error: '#D97A7A',
+  info: '#8A9CB0',
+  papel: { admin: '#8A9CB0', ministro: '#A9B7C6', vocal: '#6D8196', membro: '#8E8E8E' },
 };
 
 export const sombrasEscuras: Sombras = {
@@ -76,40 +76,40 @@ export const sombrasEscuras: Sombras = {
   lg: { shadowColor: '#000000', shadowOffset: { width: 0, height: 14 }, shadowOpacity: 0.5, shadowRadius: 28, elevation: 12 },
 };
 
-// --- Tema CLARO (vibrante: teal + coral) ---
+// --- Tema CLARO (Ink wash: creme + grafite + azul-ardósia) ---
 export const paletaClara: Cores = {
-  background: '#F5FBFA',
+  background: '#FFFFE3',
   surface: '#FFFFFF',
-  surfaceElevated: '#ECF7F5',
-  surfaceMuted: '#ECF7F5',
-  primary: '#14B8A6',
-  primaryDark: '#0E9488',
-  primaryLight: '#5EEAD4',
-  primarySoft: 'rgba(20, 184, 166, 0.12)',
-  accent: '#FB7185',
-  accentSoft: 'rgba(251, 113, 133, 0.14)',
-  primaryGradient: ['#2DD4BF', '#14B8A6'],
-  bgGradient: ['#F0FDFA', '#FFF1F2'],
-  accentGradient: ['#FB7185', '#FB923C'],
-  heroGradient: ['#F0FDFA', '#FFF1F2'],
-  glow: '#14B8A6',
-  text: '#0F2E2A',
-  textPrimary: '#0F2E2A',
-  textSecondary: '#5E7C77',
-  textMuted: '#9AB2AE',
+  surfaceElevated: '#F2F2E0',
+  surfaceMuted: '#F2F2E0',
+  primary: '#6D8196',
+  primaryDark: '#5A6C80',
+  primaryLight: '#A9B7C6',
+  primarySoft: 'rgba(109, 129, 150, 0.12)',
+  accent: '#5A6C80',
+  accentSoft: 'rgba(109, 129, 150, 0.14)',
+  primaryGradient: ['#7C90A5', '#6D8196'],
+  bgGradient: ['#FFFFE3', '#F4F4EC'],
+  accentGradient: ['#6D8196', '#4A4A4A'],
+  heroGradient: ['#FFFFF0', '#EEF0F2'],
+  glow: '#6D8196',
+  text: '#4A4A4A',
+  textPrimary: '#4A4A4A',
+  textSecondary: '#6E6E6E',
+  textMuted: '#9A9A9A',
   textInverse: '#FFFFFF',
-  border: '#E2EEEC',
-  success: '#10B981',
-  warning: '#F59E0B',
-  error: '#EF4444',
-  info: '#06B6D4',
-  papel: { admin: '#14B8A6', ministro: '#0E9488', vocal: '#FB7185', membro: '#9AB2AE' },
+  border: '#CBCBCB',
+  success: '#5E9A6E',
+  warning: '#C29A4A',
+  error: '#C25C5C',
+  info: '#6D8196',
+  papel: { admin: '#6D8196', ministro: '#5A6C80', vocal: '#4A4A4A', membro: '#9A9A9A' },
 };
 
 export const sombrasClaras: Sombras = {
-  sm: { shadowColor: '#1E2340', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.06, shadowRadius: 8, elevation: 2 },
-  md: { shadowColor: '#1E2340', shadowOffset: { width: 0, height: 8 }, shadowOpacity: 0.08, shadowRadius: 20, elevation: 6 },
-  lg: { shadowColor: '#1E2340', shadowOffset: { width: 0, height: 14 }, shadowOpacity: 0.1, shadowRadius: 28, elevation: 12 },
+  sm: { shadowColor: '#4A4A4A', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.06, shadowRadius: 8, elevation: 2 },
+  md: { shadowColor: '#4A4A4A', shadowOffset: { width: 0, height: 8 }, shadowOpacity: 0.08, shadowRadius: 20, elevation: 6 },
+  lg: { shadowColor: '#4A4A4A', shadowOffset: { width: 0, height: 14 }, shadowOpacity: 0.1, shadowRadius: 28, elevation: 12 },
 };
 
 export type ModoTema = 'claro' | 'escuro';

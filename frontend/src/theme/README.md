@@ -57,7 +57,7 @@ Família **Plus Jakarta Sans**. Com fontes custom no RN o peso vem da **família
 
 ### Sombras (`palettes.ts` → `Sombras`)
 `sm` / `md` / `lg`, por tema (no dark são pretas com opacidade maior; no claro,
-azul-escuras e sutis). Aplique com spread: `...shadows.md`.
+grafite e sutis). Aplique com spread: `...shadows.md`.
 
 ### Breakpoints (`breakpoints.ts`)
 `sm` 480 · `md` 768 · `lg` 1024 · `xl` 1280. Mobile-first. A partir de `lg` o

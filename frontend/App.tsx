@@ -133,7 +133,7 @@ function RaizApp({ pronto, initialState }: { pronto: boolean; initialState?: Ini
       <ToastHost />
       <InstallPwaHost />
       {/* Faixa da status bar (o app desenha sob ela via meta black-translucent):
-          teal em todas as telas pra o relógio branco ler bem e o topo ficar preenchido. */}
+          cor primária em todas as telas pra o relógio branco ler bem e o topo ficar preenchido. */}
       {insets.top > 0 && (
         <View
           pointerEvents="none"
