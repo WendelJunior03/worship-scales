@@ -87,6 +87,19 @@ module.exports = [
       },
     },
   },
+  {
+    // Service worker (public/sw.js): roda em contexto de worker, não de janela —
+    // declara os globais próprios (self/caches/fetch/URL) pro no-undef não falhar.
+    files: ['public/**/*.js'],
+    languageOptions: {
+      globals: {
+        self: 'readonly',
+        caches: 'readonly',
+        fetch: 'readonly',
+        URL: 'readonly',
+      },
+    },
+  },
   prettierConfig,
   {
     ignores: ['node_modules/', '.expo/', 'dist/', 'web-build/'],
