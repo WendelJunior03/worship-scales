@@ -42,8 +42,10 @@ const MAPA: Record<AnimatedIconName, typeof activity> = {
  * padrão pra dar a "identidade viva" da tela de Recursos. No nativo, o AnimatedIcon.tsx
  * cai no ícone estático equivalente.
  */
-export function AnimatedIcon({ animated, size = 44, color, loop = true }: AnimatedIconProps) {
-  return <UseAnimations animation={MAPA[animated]} size={size} strokeColor={color} autoplay loop={loop} />;
+export function AnimatedIcon({ animated, size = 44, color, speed = 0.55 }: AnimatedIconProps) {
+  // Sem autoplay/loop: o react-useanimations anima ao passar o mouse (desktop) ou ao
+  // tocar (mobile), e fica parado no resto do tempo — não polui com dezenas de loops.
+  return <UseAnimations animation={MAPA[animated]} size={size} strokeColor={color} speed={speed} />;
 }
 
 export type { AnimatedIconName } from './AnimatedIcon.types';
