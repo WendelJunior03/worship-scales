@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import {
+    listarMaisTocadasController,
     criarMusicaController,
     listarMusicasController,
     listarArtistasController,
@@ -16,6 +17,7 @@ const router = Router();
 
 router.get('/', authMiddleware, listarMusicasController);
 router.get('/artistas', authMiddleware, listarArtistasController);
+router.get('/mais-tocadas', authMiddleware, listarMaisTocadasController);
 router.get('/buscar-metadados', authMiddleware, autoriza('musica.gerenciar'), buscarMetadadosController);
 router.get('/buscar-candidatos', authMiddleware, autoriza('musica.gerenciar'), buscarCandidatosController);
 router.get('/:id', authMiddleware, getMusicaController);
