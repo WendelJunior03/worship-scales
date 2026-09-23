@@ -374,7 +374,7 @@ export function HomeScreen() {
                       : navigation.navigate('Biblioteca')
                   }
                   accessibilityRole="button"
-                  accessibilityLabel={`${m.nome}, tocada ${m.vezes} ${m.vezes === 1 ? 'vez' : 'vezes'}`}
+                  accessibilityLabel={m.vezes > 0 ? `${m.nome}, tocada ${m.vezes} ${m.vezes === 1 ? 'vez' : 'vezes'}` : m.nome}
                 >
                   {m.capa_url ? (
                     <Image source={{ uri: m.capa_url }} style={styles.tocadaCapa} />
@@ -386,14 +386,12 @@ export function HomeScreen() {
                   <Text style={styles.tocadaNome} numberOfLines={1}>
                     {m.nome}
                   </Text>
-                  <Text style={styles.tocadaVezes}>
-                    {m.vezes}x
-                  </Text>
+                  {m.vezes > 0 && <Text style={styles.tocadaVezes}>{m.vezes}x</Text>}
                 </TouchableOpacity>
               ))}
             </View>
           ) : (
-            <Text style={styles.postCorpo}>As músicas mais tocadas nos cultos aparecem aqui.</Text>
+            <Text style={styles.postCorpo}>Cadastre músicas na Biblioteca pra elas aparecerem aqui.</Text>
           )}
         </PostCard>
       </ScrollView>

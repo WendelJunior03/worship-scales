@@ -73,7 +73,8 @@ export async function listarArtistas() {
  * Músicas mais tocadas: conta as vezes que cada música entrou no repertório de cultos
  * que JÁ aconteceram. Linhas antigas do repertório não têm `musica_id` — essas casam
  * com a biblioteca pelo nome (sem caixa/espaços) pra aproveitar capa/artista; sem
- * par na biblioteca, agrupam pelo próprio nome.
+ * par na biblioteca, agrupam pelo próprio nome. Se o ranking não enche o limite,
+ * completa com músicas da Biblioteca (vezes = 0).
  */
 export async function listarMaisTocadas(limite: number) {
     const result = await query(
@@ -102,5 +103,19 @@ export async function listarMaisTocadas(limite: number) {
          LIMIT $1`,
         [limite],
     );
-    return result.rows;
+    const ranking = result.rows;
+    if (ranking.length >= limite) return ranking;
+
+    // Pouco (ou nenhum) histórico ainda: completa com as músicas da Biblioteca mais
+    // recentes (vezes = 0), pra o card da Início já mostrar o que o ministério cadastrou.
+    const jaListadas = ranking.map((r) => r.musica_id).filter((id): id is number => id != null);
+    const complemento = await query(
+        `SELECT id AS musica_id, nome, artista, capa_url, 0 AS vezes
+           FROM musicas
+          WHERE NOT (id = ANY($1::int[]))
+          ORDER BY created_at DESC, id DESC
+          LIMIT $2`,
+        [jaListadas, limite - ranking.length],
+    );
+    return [...ranking, ...complemento.rows];
 }
