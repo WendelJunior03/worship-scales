@@ -15,20 +15,10 @@ const tags = `
   <link rel="apple-touch-icon" href="/icon-192.png" />
   <meta name="google" content="notranslate" />
   <style>
-    /* O Chrome pinta um fundo amarelado próprio em campos com autofill, ignorando o
-       fundo do nosso Input. Esse truque do box-shadow "pinta por cima" (o navegador
-       não deixa sobrescrever background-color direto). Cores do tema CLARO (padrão):
-       fundo branco + texto escuro, pra combinar com o form de login. */
-    input:-webkit-autofill,
-    input:-webkit-autofill:hover,
-    input:-webkit-autofill:focus,
-    input:-webkit-autofill:active {
-      -webkit-box-shadow: 0 0 0 1000px #FFFFFF inset !important;
-      box-shadow: 0 0 0 1000px #FFFFFF inset !important;
-      -webkit-text-fill-color: #0A0F1A !important;
-      caret-color: #0A0F1A !important;
-      transition: background-color 9999s ease-in-out 0s;
-    }
+    /* Fundo antes do JS carregar = tema padrão (escuro), sem clarão branco na abertura.
+       O autofill dos campos é tratado no App.tsx (transição) + Input.tsx (cor do texto),
+       que seguem o tema ativo. */
+    html, body { background-color: #2B2B2B; }
   </style>
 `;
 

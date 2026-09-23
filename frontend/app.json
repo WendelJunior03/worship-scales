@@ -21,7 +21,7 @@
     "web": {
       "favicon": "./assets/favicon.png",
       "themeColor": "#6D8196",
-      "backgroundColor": "#FFFFFF"
+      "backgroundColor": "#2B2B2B"
     },
     "plugins": [
       "expo-secure-store",
