@@ -33,6 +33,13 @@ const tags = `
 `;
 
 html = html.replace('</head>', `${tags}</head>`);
+// viewport-fit=cover: sem isso o iPhone (notch/Dynamic Island) informa 0 de área
+// segura (env(safe-area-inset-*)) e o topo colorido não sobe até atrás do relógio —
+// a faixa da status bar (App.tsx) e o padding do topo da Início dependem desse valor.
+html = html.replace(
+  /<meta name="viewport" content="([^"]*)"/,
+  (tag, conteudo) => (conteudo.includes('viewport-fit') ? tag : `<meta name="viewport" content="${conteudo}, viewport-fit=cover"`),
+);
 html = html.replace('<html lang="en">', '<html lang="pt-BR" translate="no">');
 
 fs.writeFileSync(indexPath, html);
