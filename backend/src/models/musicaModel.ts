@@ -68,3 +68,39 @@ export async function listarArtistas() {
     );
     return result.rows;
 }
+
+/**
+ * Músicas mais tocadas: conta as vezes que cada música entrou no repertório de cultos
+ * que JÁ aconteceram. Linhas antigas do repertório não têm `musica_id` — essas casam
+ * com a biblioteca pelo nome (sem caixa/espaços) pra aproveitar capa/artista; sem
+ * par na biblioteca, agrupam pelo próprio nome.
+ */
+export async function listarMaisTocadas(limite: number) {
+    const result = await query(
+        `WITH tocadas AS (
+            SELECT COALESCE(r.musica_id, par.id) AS musica_id,
+                   lower(trim(r.nome)) AS chave,
+                   r.nome
+              FROM repertorio r
+              JOIN cultos c ON c.id = r.culto_id
+              LEFT JOIN LATERAL (
+                  SELECT m.id FROM musicas m
+                   WHERE r.musica_id IS NULL AND lower(trim(m.nome)) = lower(trim(r.nome))
+                   ORDER BY m.id LIMIT 1
+              ) par ON true
+             WHERE c.data_hora <= now()
+        )
+        SELECT t.musica_id,
+               COALESCE(m.nome, min(t.nome)) AS nome,
+               m.artista,
+               m.capa_url,
+               COUNT(*)::int AS vezes
+          FROM tocadas t
+          LEFT JOIN musicas m ON m.id = t.musica_id
+         GROUP BY t.musica_id, (CASE WHEN t.musica_id IS NULL THEN t.chave END), m.nome, m.artista, m.capa_url
+         ORDER BY vezes DESC, nome ASC
+         LIMIT $1`,
+        [limite],
+    );
+    return result.rows;
+}

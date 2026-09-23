@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from 'react';
-import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { Card } from '@/components/Card';
 import { Icon, IconName } from '@/components/Icon';
 import { AnimatedIcon } from '@/components/AnimatedIcon';
@@ -15,6 +15,7 @@ import * as cultosService from '@/services/cultos';
 import * as membrosService from '@/services/membros';
 import * as avisosService from '@/services/avisos';
 import * as ministeriosService from '@/services/ministerios';
+import * as musicasService from '@/services/musicas';
 import { ApiError } from '@/services/api';
 import { Aniversariante, Aviso, CultoResumo, MinisterioMembro } from '@/types';
 import { spacing, radius, typography, fonts, LARGURA_CONTEUDO } from '@/theme';
@@ -72,6 +73,7 @@ export function HomeScreen() {
   const [aniversariantes, setAniversariantes] = useState<Aniversariante[]>([]);
   const [avisos, setAvisos] = useState<Aviso[]>([]);
   const [integrantes, setIntegrantes] = useState<MinisterioMembro[]>([]);
+  const [maisTocadas, setMaisTocadas] = useState<musicasService.MusicaTocada[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [temNotificacaoNaoLida, setTemNotificacaoNaoLida] = useState(false);
@@ -112,11 +114,21 @@ export function HomeScreen() {
     }
   }, []);
 
+  // Top 3 do repertório (card "Mais tocadas"). Também à parte e não fatal.
+  const carregarMaisTocadas = useCallback(async () => {
+    try {
+      setMaisTocadas(await musicasService.getMaisTocadas(3));
+    } catch {
+      setMaisTocadas([]);
+    }
+  }, []);
+
   useFocusEffect(
     useCallback(() => {
       carregarDados();
       carregarIntegrantes();
-    }, [carregarDados, carregarIntegrantes]),
+      carregarMaisTocadas();
+    }, [carregarDados, carregarIntegrantes, carregarMaisTocadas]),
   );
 
   useFocusEffect(
@@ -350,7 +362,39 @@ export function HomeScreen() {
           sub="Repertório"
           onPress={() => navigation.navigate('Biblioteca')}
         >
-          <Text style={styles.postCorpo}>Confira as músicas do repertório.</Text>
+          {maisTocadas.length > 0 ? (
+            <View style={styles.tocadas}>
+              {maisTocadas.map((m, i) => (
+                <TouchableOpacity
+                  key={`${m.musica_id ?? m.nome}-${i}`}
+                  style={styles.tocada}
+                  onPress={() =>
+                    m.musica_id
+                      ? navigation.navigate('DetalheMusica', { musicaId: m.musica_id, nome: m.nome })
+                      : navigation.navigate('Biblioteca')
+                  }
+                  accessibilityRole="button"
+                  accessibilityLabel={`${m.nome}, tocada ${m.vezes} ${m.vezes === 1 ? 'vez' : 'vezes'}`}
+                >
+                  {m.capa_url ? (
+                    <Image source={{ uri: m.capa_url }} style={styles.tocadaCapa} />
+                  ) : (
+                    <View style={[styles.tocadaCapa, styles.tocadaSemCapa]}>
+                      <Icon name="musical-notes" size={20} color={colors.primary} />
+                    </View>
+                  )}
+                  <Text style={styles.tocadaNome} numberOfLines={1}>
+                    {m.nome}
+                  </Text>
+                  <Text style={styles.tocadaVezes}>
+                    {m.vezes}x
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          ) : (
+            <Text style={styles.postCorpo}>As músicas mais tocadas nos cultos aparecem aqui.</Text>
+          )}
         </PostCard>
       </ScrollView>
     </SafeAreaView>
@@ -601,6 +645,12 @@ const criarEstilos = (colors: Cores, shadows: Sombras) =>
     postSub: { ...typography.caption, color: colors.textSecondary, marginTop: 1 },
     postDot: { width: 8, height: 8, borderRadius: 4, backgroundColor: colors.primary },
     postCorpo: { ...typography.bodySmall, color: colors.textSecondary },
+    tocadas: { flexDirection: 'row', gap: spacing.sm },
+    tocada: { flex: 1, alignItems: 'center', gap: 4, minWidth: 0 },
+    tocadaCapa: { width: 52, height: 52, borderRadius: 26, borderWidth: 2, borderColor: colors.primary },
+    tocadaSemCapa: { backgroundColor: colors.primarySoft, alignItems: 'center', justifyContent: 'center' },
+    tocadaNome: { ...typography.caption, color: colors.text, fontFamily: fonts.medium, maxWidth: '100%', textAlign: 'center' },
+    tocadaVezes: { ...typography.caption, fontSize: 11, color: colors.textMuted },
     postServindo: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
     postServindoTxt: { ...typography.caption, color: colors.textMuted },
     postBotao: {

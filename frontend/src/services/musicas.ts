@@ -71,3 +71,17 @@ export async function atualizarMusica(id: number, input: MusicaInput): Promise<M
 export async function apagarMusica(id: number): Promise<void> {
   await api.delete(`/musicas/${id}`);
 }
+
+export interface MusicaTocada {
+  musica_id: number | null;
+  nome: string;
+  artista: string | null;
+  capa_url: string | null;
+  vezes: number;
+}
+
+/** Ranking das músicas mais tocadas (repertório dos cultos já realizados). */
+export async function getMaisTocadas(limite = 3): Promise<MusicaTocada[]> {
+  const { data } = await api.get<MusicaTocada[]>('/musicas/mais-tocadas', { params: { limite } });
+  return data;
+}

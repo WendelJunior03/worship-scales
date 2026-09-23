@@ -73,6 +73,12 @@ export async function listarMusicasController(_req: Request, res: Response) {
     return res.status(200).json(await model.listarMusicas());
 }
 
+/** GET /musicas/mais-tocadas?limite=3 — ranking pelo repertório dos cultos já realizados. */
+export async function listarMaisTocadasController(req: Request, res: Response) {
+    const limite = Math.min(Math.max(Number(req.query.limite) || 3, 1), 20);
+    return res.status(200).json(await model.listarMaisTocadas(limite));
+}
+
 /** GET /musicas/artistas — agregação por artista (antes de /:id). */
 export async function listarArtistasController(_req: Request, res: Response) {
     return res.status(200).json(await model.listarArtistas());
