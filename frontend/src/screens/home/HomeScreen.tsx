@@ -14,8 +14,9 @@ import * as notificacoesService from '@/services/notificacoes';
 import * as cultosService from '@/services/cultos';
 import * as membrosService from '@/services/membros';
 import * as avisosService from '@/services/avisos';
+import * as ministeriosService from '@/services/ministerios';
 import { ApiError } from '@/services/api';
-import { Aniversariante, Aviso, CultoResumo } from '@/types';
+import { Aniversariante, Aviso, CultoResumo, MinisterioMembro } from '@/types';
 import { spacing, radius, typography, fonts, LARGURA_CONTEUDO } from '@/theme';
 import { Cores, Sombras } from '@/theme/palettes';
 import { useTheme, useThemedStyles } from '@/contexts/ThemeContext';
@@ -70,6 +71,7 @@ export function HomeScreen() {
   const [minhasEscalas, setMinhasEscalas] = useState<CultoResumo[]>([]);
   const [aniversariantes, setAniversariantes] = useState<Aniversariante[]>([]);
   const [avisos, setAvisos] = useState<Aviso[]>([]);
+  const [integrantes, setIntegrantes] = useState<MinisterioMembro[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [temNotificacaoNaoLida, setTemNotificacaoNaoLida] = useState(false);
@@ -99,10 +101,22 @@ export function HomeScreen() {
     }
   }, []);
 
+  // Integrantes do ministério (carrossel). À parte e sem travar a tela: se falhar,
+  // a Início segue sem o carrossel.
+  const carregarIntegrantes = useCallback(async () => {
+    try {
+      const [ministerio] = await ministeriosService.listarMinisterios();
+      setIntegrantes(ministerio ? await ministeriosService.listarMembros(ministerio.id) : []);
+    } catch {
+      setIntegrantes([]);
+    }
+  }, []);
+
   useFocusEffect(
     useCallback(() => {
       carregarDados();
-    }, [carregarDados]),
+      carregarIntegrantes();
+    }, [carregarDados, carregarIntegrantes]),
   );
 
   useFocusEffect(
@@ -250,6 +264,39 @@ export function HomeScreen() {
             </TouchableOpacity>
           </Card>
         ) : null}
+
+        {/* Integrantes do ministério: fotos + primeiro nome (estilo stories). */}
+        {integrantes.length > 0 && (
+          <View style={styles.integrantes}>
+            <View style={styles.integrantesHeader}>
+              <Text style={styles.integrantesTitulo}>Integrantes · {integrantes.length}</Text>
+              <TouchableOpacity onPress={() => navigation.navigate('Ministerio')} hitSlop={8}>
+                <Text style={styles.integrantesVer}>Ver todos</Text>
+              </TouchableOpacity>
+            </View>
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              style={styles.storiesWrap}
+              contentContainerStyle={styles.stories}
+            >
+              {integrantes.map((m) => (
+                <TouchableOpacity
+                  key={m.id}
+                  style={styles.story}
+                  onPress={() => navigation.navigate('Ministerio')}
+                  accessibilityRole="button"
+                  accessibilityLabel={m.nome}
+                >
+                  <Avatar nome={m.nome} fotoUrl={m.foto_url} size={58} style={styles.integranteAvatar} />
+                  <Text style={styles.storyLabel} numberOfLines={1}>
+                    {m.nome.trim().split(/\s+/)[0]}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+          </View>
+        )}
 
         {/* Posts: comunicados */}
         {avisos.map((a) => (
@@ -534,6 +581,11 @@ const criarEstilos = (colors: Cores, shadows: Sombras) =>
       alignItems: 'center',
       justifyContent: 'center',
     },
+    integrantes: { gap: spacing.sm },
+    integrantesHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+    integrantesTitulo: { ...typography.body, color: colors.text, fontFamily: fonts.semibold },
+    integrantesVer: { ...typography.bodySmall, color: colors.primary, fontFamily: fonts.semibold },
+    integranteAvatar: { borderWidth: 2, borderColor: colors.primary },
     storyLabel: { ...typography.caption, color: colors.textSecondary, maxWidth: 64, textAlign: 'center' },
     post: { gap: spacing.md, borderRadius: radius.xxl, padding: spacing.lg, ...shadows.sm },
     postHeader: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },

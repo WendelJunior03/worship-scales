@@ -1,3 +1,4 @@
+import { PoolClient } from 'pg';
 import { query, unscopedQuery, withBypass } from '../config/database';
 import { gerarOrgCode } from '../utils/orgCode';
 import { slugify } from '../utils/slug';
@@ -96,4 +97,36 @@ export async function criarOrganizacaoComAdmin(dados: NovaOrgComAdmin) {
 
         return { org: { ...org, criado_por: membro.id }, membro };
     });
+}
+
+/**
+ * Quem entra por código de convite vira membro do ministério quando a org tem UM só
+ * (o caso comum) — antes ficava só na org e ninguém do ministério o enxergava. Com
+ * vários ministérios o admin decide onde colocar. Respeita o limite de vagas do Free
+ * (PRO é ilimitado): ministério cheio → não vincula, o admin resolve. Roda no mesmo
+ * client/transação (bypass) do cadastro. Retorna o id do ministério vinculado ou null.
+ */
+export async function vincularAoMinisterioUnico(client: PoolClient, orgId: number, plano: string, membroId: number) {
+    const ministerios = (await client.query(
+        'SELECT id, vagas_gratis, vagas_extras FROM ministerios WHERE org_id = $1',
+        [orgId],
+    )).rows;
+    if (ministerios.length !== 1) return null;
+    const ministerio = ministerios[0];
+
+    if (plano !== 'pro') {
+        const total = (await client.query(
+            'SELECT COUNT(*)::int AS n FROM ministerio_membros WHERE ministerio_id = $1',
+            [ministerio.id],
+        )).rows[0].n;
+        if (total >= ministerio.vagas_gratis + ministerio.vagas_extras) return null;
+    }
+
+    await client.query(
+        `INSERT INTO ministerio_membros (ministerio_id, membro_id, org_id, papel)
+         VALUES ($1, $2, $3, 'membro')
+         ON CONFLICT DO NOTHING`,
+        [ministerio.id, membroId, orgId],
+    );
+    return ministerio.id as number;
 }

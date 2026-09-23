@@ -5,6 +5,7 @@ import {
     buscarOrgPorCodigo,
     buscarOrgPorId,
     criarOrganizacaoComAdmin,
+    vincularAoMinisterioUnico,
 } from '../models/organizacaoModel';
 import { withBypass } from '../config/database';
 import { gerarPrefixo } from '../utils/orgCode';
@@ -84,9 +85,12 @@ export async function entrarComCodigo(req: Request, res: Response) {
     // eixos de RBAC são decisão do admin depois, não algo que quem se cadastra escolhe.
     // Pré-auth e cross-tenant (a org já existe, mas ainda não há sessão dela) — sem
     // bypass, o RLS fail-closed bloqueia o INSERT (ninguém tem `app.current_org` ainda).
-    const membro = await withBypass((client) =>
-        createMembers(name, phone, instruments ?? [], email, 'membro', null, hashPassword, org.id, null, client),
-    );
+    // Na mesma transação já entra no ministério (quando a org tem um só).
+    const membro = await withBypass(async (client) => {
+        const novo = await createMembers(name, phone, instruments ?? [], email, 'membro', null, hashPassword, org.id, null, client);
+        await vincularAoMinisterioUnico(client, org.id, org.plano, novo.id);
+        return novo;
+    });
 
     const token = assinarTokenMembro({
         id: membro.id,
