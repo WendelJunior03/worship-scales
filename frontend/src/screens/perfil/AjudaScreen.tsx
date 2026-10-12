@@ -15,7 +15,7 @@ const PERGUNTAS: { pergunta: string; resposta: string }[] = [
   {
     pergunta: 'Como confirmo ou recuso uma escala?',
     resposta:
-      'Abra a aba Avisos (o sino) e toque em Confirmar ou Recusar no aviso da escala. Ao recusar, você pode indicar alguém pra te substituir.',
+      'Abra a aba Avisos (o sino) e toque em Confirmar ou Recusar no aviso da escala. Ao recusar, você pode indicar um substituto.',
   },
   {
     pergunta: 'Como aviso que não posso servir num dia?',
@@ -35,7 +35,7 @@ const PERGUNTAS: { pergunta: string; resposta: string }[] = [
   {
     pergunta: 'Como troco minha foto ou meus dados?',
     resposta:
-      'No Perfil, toque no ícone da câmera sobre a sua foto pra trocar ou remover. Nome, telefone, data de nascimento e instrumentos ficam em Informações.',
+      'No Perfil, toque no ícone da câmera sobre a sua foto para trocá-la ou removê-la. Nome, telefone, data de nascimento e instrumentos ficam em Informações.',
   },
   {
     pergunta: 'Como altero minha senha?',

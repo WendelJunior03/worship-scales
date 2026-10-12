@@ -25,7 +25,7 @@ const GRUPOS: { titulo: string; itens: Funcionalidade[] }[] = [
       { icon: 'calendar-outline', label: 'Escalas', sub: 'Quem serve e quando' },
       { icon: 'musical-notes', label: 'Repertório', sub: 'Músicas, tons e cifras' },
       { icon: 'mic-outline', label: 'Ensaios', sub: 'Presença da equipe' },
-      { icon: 'chatbubble-ellipses-outline', label: 'Comunicados', sub: 'Avisos pra todos' },
+      { icon: 'chatbubble-ellipses-outline', label: 'Comunicados', sub: 'Avisos para todos' },
     ],
   },
   {
