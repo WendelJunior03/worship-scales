@@ -56,6 +56,16 @@ export function SobreScreen() {
           <Text style={styles.tagline}>Seu ministério de louvor, do ensaio ao palco.</Text>
         </View>
 
+        <Card style={styles.grupo}>
+          <Text style={styles.grupoTitulo}>Nossa história</Text>
+          <Text style={styles.historia}>
+            O Worship Stage nasceu de uma ideia em conjunto: dar aos ministérios de louvor uma
+            ferramenta que ajude a servir com mais organização e excelência. Cada detalhe foi
+            pensado pra que a equipe gaste menos tempo com a logística e mais tempo no que
+            importa: contribuir para o crescimento do Reino de Deus.
+          </Text>
+        </Card>
+
         {GRUPOS.map((grupo) => (
           <Card key={grupo.titulo} style={styles.grupo}>
             <Text style={styles.grupoTitulo}>{grupo.titulo}</Text>
@@ -119,6 +129,7 @@ const criarEstilos = (colors: Cores) =>
       textTransform: 'uppercase',
       letterSpacing: 0.6,
     },
+    historia: { ...typography.bodySmall, color: colors.textSecondary, lineHeight: 21 },
     grade: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
     tile: {
       flexGrow: 1,
