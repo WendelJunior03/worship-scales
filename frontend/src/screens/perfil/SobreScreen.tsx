@@ -59,10 +59,10 @@ export function SobreScreen() {
         <Card style={styles.grupo}>
           <Text style={styles.grupoTitulo}>Nossa história</Text>
           <Text style={styles.historia}>
-            O Worship Stage nasceu de uma ideia em conjunto: dar aos ministérios de louvor uma
-            ferramenta que ajude a servir com mais organização e excelência. Cada detalhe foi
-            pensado pra que a equipe gaste menos tempo com a logística e mais tempo no que
-            importa: contribuir para o crescimento do Reino de Deus.
+            O Worship Stage nasceu de uma ideia construída em conjunto: oferecer aos ministérios
+            de louvor uma ferramenta que os auxilie a servir com mais organização e excelência.
+            Cada detalhe foi pensado para que a equipe dedique menos tempo à logística e mais
+            tempo ao que realmente importa: contribuir para o crescimento do Reino de Deus.
           </Text>
         </Card>
 
