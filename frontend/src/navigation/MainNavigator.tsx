@@ -25,6 +25,8 @@ import { ComunicadosScreen } from '@/screens/comunicados/ComunicadosScreen';
 import { AssinaturasScreen } from '@/screens/assinaturas/AssinaturasScreen';
 import { MultitrackScreen } from '@/screens/multitrack/MultitrackScreen';
 import { IntegracoesScreen } from '@/screens/integracoes/IntegracoesScreen';
+import { AjudaScreen } from '@/screens/perfil/AjudaScreen';
+import { SobreScreen } from '@/screens/perfil/SobreScreen';
 
 export type MainStackParamList = {
   MainTabs: undefined;
@@ -49,6 +51,8 @@ export type MainStackParamList = {
   Assinaturas: undefined;
   Multitrack: undefined;
   Integracoes: undefined;
+  Ajuda: undefined;
+  Sobre: undefined;
 };
 
 const Stack = createStackNavigator<MainStackParamList>();
@@ -78,6 +82,8 @@ function StackNavigator() {
       <Stack.Screen name="Assinaturas" component={AssinaturasScreen} />
       <Stack.Screen name="Multitrack" component={MultitrackScreen} />
       <Stack.Screen name="Integracoes" component={IntegracoesScreen} />
+      <Stack.Screen name="Ajuda" component={AjudaScreen} />
+      <Stack.Screen name="Sobre" component={SobreScreen} />
     </Stack.Navigator>
   );
 }
