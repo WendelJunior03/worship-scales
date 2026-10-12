@@ -63,11 +63,16 @@ const ATALHOS: { icon: IconName; label: string; route: 'Escalas' | 'Biblioteca' 
 ];
 
 export function HomeScreen() {
-  const { colors } = useTheme();
+  const { colors, modo } = useTheme();
   const { user } = useAuth();
   const styles = useThemedStyles(criarEstilos);
   const navigation = useNavigation<MainTabScreenNavigationProp<'Home'>>();
   const insets = useSafeAreaInsets();
+  // Tema claro: header vira um bloco sólido pastel (sem gradiente) e os círculos de
+  // atalho viram contorno sólido (sem anel em gradiente) — tema escuro mantém o visual
+  // original dos dois.
+  const headerClaro = modo === 'claro';
+  const corHeaderTexto = headerClaro ? colors.headerText : '#FFFFFF';
 
   const [minhasEscalas, setMinhasEscalas] = useState<CultoResumo[]>([]);
   const [aniversariantes, setAniversariantes] = useState<Aniversariante[]>([]);
@@ -157,28 +162,53 @@ export function HomeScreen() {
 
   return (
     <SafeAreaView style={styles.screen} edges={['left', 'right']}>
-      {/* Top bar preenchida: gradiente primária→destaque que sobe até atrás da status bar. */}
-      <LinearGradient
-        colors={[colors.primary, colors.accent]}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 0, y: 1 }}
-        style={[styles.topbar, { paddingTop: insets.top + spacing.sm }]}
-      >
-        <View style={styles.saudacao}>
-          <Avatar nome={user?.nome ?? ''} fotoUrl={user?.foto_url} size={40} style={styles.saudacaoAvatar} />
-          <Text style={styles.wordmark}>Bem-vindo!</Text>
+      {/* Top bar: tema claro vira um bloco pastel sólido; tema escuro mantém o
+          gradiente primária→destaque que sobe até atrás da status bar. */}
+      {headerClaro ? (
+        <View style={[styles.topbar, { backgroundColor: colors.headerBg, paddingTop: insets.top + spacing.sm }]}>
+          <View style={styles.saudacao}>
+            <Avatar
+              nome={user?.nome ?? ''}
+              fotoUrl={user?.foto_url}
+              size={40}
+              style={[styles.saudacaoAvatar, { borderColor: 'rgba(26,26,26,0.18)' }]}
+            />
+            <Text style={[styles.wordmark, { color: corHeaderTexto }]}>Bem-vindo!</Text>
+          </View>
+          <TouchableOpacity
+            style={styles.topbarBtn}
+            onPress={() => navigation.navigate('Notificacoes')}
+            hitSlop={8}
+            accessibilityRole="button"
+            accessibilityLabel={temNotificacaoNaoLida ? 'Notificações (não lidas)' : 'Notificações'}
+          >
+            <Icon name="notifications-outline" size={24} color={corHeaderTexto} />
+            {temNotificacaoNaoLida && <View style={styles.badgeDot} />}
+          </TouchableOpacity>
         </View>
-        <TouchableOpacity
-          style={styles.topbarBtn}
-          onPress={() => navigation.navigate('Notificacoes')}
-          hitSlop={8}
-          accessibilityRole="button"
-          accessibilityLabel={temNotificacaoNaoLida ? 'Notificações (não lidas)' : 'Notificações'}
+      ) : (
+        <LinearGradient
+          colors={[colors.primary, colors.accent]}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 0, y: 1 }}
+          style={[styles.topbar, { paddingTop: insets.top + spacing.sm }]}
         >
-          <Icon name="notifications-outline" size={24} color="#FFFFFF" />
-          {temNotificacaoNaoLida && <View style={styles.badgeDot} />}
-        </TouchableOpacity>
-      </LinearGradient>
+          <View style={styles.saudacao}>
+            <Avatar nome={user?.nome ?? ''} fotoUrl={user?.foto_url} size={40} style={styles.saudacaoAvatar} />
+            <Text style={[styles.wordmark, { color: corHeaderTexto }]}>Bem-vindo!</Text>
+          </View>
+          <TouchableOpacity
+            style={styles.topbarBtn}
+            onPress={() => navigation.navigate('Notificacoes')}
+            hitSlop={8}
+            accessibilityRole="button"
+            accessibilityLabel={temNotificacaoNaoLida ? 'Notificações (não lidas)' : 'Notificações'}
+          >
+            <Icon name="notifications-outline" size={24} color={corHeaderTexto} />
+            {temNotificacaoNaoLida && <View style={styles.badgeDot} />}
+          </TouchableOpacity>
+        </LinearGradient>
+      )}
 
       <ScrollView style={styles.scroll} contentContainerStyle={styles.content}>
         {/* Stories: atalhos em círculos com anel (estilo IG). */}
@@ -196,16 +226,22 @@ export function HomeScreen() {
               accessibilityRole="button"
               accessibilityLabel={a.label}
             >
-              <LinearGradient
-                colors={colors.accentGradient}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 1 }}
-                style={styles.storyRing}
-              >
-                <View style={styles.storyInner}>
-                  <AnimatedIcon fallback={a.icon} size={38} color={colors.primary} />
+              {headerClaro ? (
+                <View style={styles.storyCirculoClaro}>
+                  <AnimatedIcon fallback={a.icon} size={38} color={colors.text} />
                 </View>
-              </LinearGradient>
+              ) : (
+                <LinearGradient
+                  colors={colors.accentGradient}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 1 }}
+                  style={styles.storyRing}
+                >
+                  <View style={styles.storyInner}>
+                    <AnimatedIcon fallback={a.icon} size={38} color={colors.primary} />
+                  </View>
+                </LinearGradient>
+              )}
               <Text style={styles.storyLabel} numberOfLines={1}>
                 {a.label}
               </Text>
@@ -600,7 +636,7 @@ const criarEstilos = (colors: Cores, shadows: Sombras) =>
       paddingBottom: spacing.md,
       width: '100%',
     },
-    wordmark: { ...typography.h2, color: '#FFFFFF', fontFamily: fonts.bold },
+    wordmark: { ...typography.h2, fontFamily: fonts.bold },
     saudacao: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, flex: 1 },
     saudacaoAvatar: { borderWidth: 2, borderColor: 'rgba(255,255,255,0.85)' },
     topbarBtn: { width: 40, height: 40, alignItems: 'center', justifyContent: 'center' },
@@ -622,6 +658,17 @@ const criarEstilos = (colors: Cores, shadows: Sombras) =>
       backgroundColor: colors.surface,
       alignItems: 'center',
       justifyContent: 'center',
+    },
+    // Tema claro: círculo único com contorno sólido (sem anel em gradiente).
+    storyCirculoClaro: {
+      width: 62,
+      height: 62,
+      borderRadius: 31,
+      alignItems: 'center',
+      justifyContent: 'center',
+      backgroundColor: colors.background,
+      borderWidth: 1.5,
+      borderColor: colors.atalhoBorder,
     },
     integrantes: { gap: spacing.sm },
     integrantesHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
