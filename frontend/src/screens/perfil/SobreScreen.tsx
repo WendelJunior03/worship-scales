@@ -3,13 +3,44 @@ import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Header } from '@/components/Header';
 import { Card } from '@/components/Card';
+import { Icon, IconName } from '@/components/Icon';
 import { Logo } from '@/components/Logo';
-import { fonts, LARGURA_CONTEUDO, spacing, typography } from '@/theme';
+import { fonts, LARGURA_CONTEUDO, radius, spacing, typography } from '@/theme';
 import { Cores } from '@/theme/palettes';
-import { useThemedStyles } from '@/contexts/ThemeContext';
+import { useTheme, useThemedStyles } from '@/contexts/ThemeContext';
 import appConfig from '../../../app.json';
 
+interface Funcionalidade {
+  icon: IconName;
+  label: string;
+  sub: string;
+}
+
+// Onde a funcionalidade já tem ícone na Início/Recursos, usa o mesmo — cada uma fica
+// com uma "cara" só no app.
+const GRUPOS: { titulo: string; itens: Funcionalidade[] }[] = [
+  {
+    titulo: 'Para o ministério',
+    itens: [
+      { icon: 'calendar-outline', label: 'Escalas', sub: 'Quem serve e quando' },
+      { icon: 'musical-notes', label: 'Repertório', sub: 'Músicas, tons e cifras' },
+      { icon: 'mic-outline', label: 'Ensaios', sub: 'Presença da equipe' },
+      { icon: 'chatbubble-ellipses-outline', label: 'Comunicados', sub: 'Avisos pra todos' },
+    ],
+  },
+  {
+    titulo: 'No ensaio e no palco',
+    itens: [
+      { icon: 'speedometer-outline', label: 'Afinador', sub: 'Afine o instrumento' },
+      { icon: 'timer-outline', label: 'Metrônomo', sub: 'BPM e tap tempo' },
+      { icon: 'pulse-outline', label: 'Pad contínuo', sub: 'Camadas de fundo' },
+      { icon: 'grid-outline', label: 'Octapad', sub: 'Pads de bateria' },
+    ],
+  },
+];
+
 export function SobreScreen() {
+  const { colors } = useTheme();
   const styles = useThemedStyles(criarEstilos);
 
   return (
@@ -19,23 +50,39 @@ export function SobreScreen() {
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         <View style={styles.topo}>
           <Logo size={88} />
-          <Text style={styles.versao}>Versão {appConfig.expo.version}</Text>
+          <View style={styles.versaoPill}>
+            <Text style={styles.versao}>Versão {appConfig.expo.version}</Text>
+          </View>
+          <Text style={styles.tagline}>Seu ministério de louvor, do ensaio ao palco.</Text>
         </View>
 
-        <Card style={styles.bloco}>
-          <Text style={styles.texto}>
-            O Worship Stage organiza o ministério de louvor num só lugar: escalas, repertório,
-            ensaios e comunicados da equipe.
-          </Text>
-          <Text style={styles.texto}>
-            Também traz ferramentas pra usar no ensaio e no palco, como afinador, metrônomo, pad
-            contínuo e octapad.
-          </Text>
-        </Card>
+        {GRUPOS.map((grupo) => (
+          <Card key={grupo.titulo} style={styles.grupo}>
+            <Text style={styles.grupoTitulo}>{grupo.titulo}</Text>
+            <View style={styles.grade}>
+              {grupo.itens.map((item) => (
+                <View key={item.label} style={styles.tile}>
+                  <View style={styles.tileIcone}>
+                    <Icon name={item.icon} size={20} color={colors.primary} />
+                  </View>
+                  <Text style={styles.tileLabel} numberOfLines={1}>
+                    {item.label}
+                  </Text>
+                  <Text style={styles.tileSub} numberOfLines={1}>
+                    {item.sub}
+                  </Text>
+                </View>
+              ))}
+            </View>
+          </Card>
+        ))}
 
-        <Card style={styles.bloco}>
-          <Text style={styles.rotulo}>Desenvolvido por</Text>
-          <Text style={styles.creditos}>Wendel Junior e João Victor</Text>
+        <Card style={styles.creditosCard}>
+          <Icon name="people-outline" size={18} color={colors.primary} />
+          <View style={styles.creditosTextos}>
+            <Text style={styles.rotulo}>Desenvolvido por</Text>
+            <Text style={styles.creditos}>Wendel Junior e João Victor</Text>
+          </View>
         </Card>
 
         <Text style={styles.rodape}>© {new Date().getFullYear()} Worship Stage</Text>
@@ -55,10 +102,47 @@ const criarEstilos = (colors: Cores) =>
       paddingTop: spacing.sm,
       gap: spacing.md,
     },
-    topo: { alignItems: 'center', gap: spacing.xs, paddingVertical: spacing.md },
-    versao: { ...typography.bodySmall, color: colors.textMuted },
-    bloco: { gap: spacing.sm },
-    texto: { ...typography.body, color: colors.textSecondary },
+    topo: { alignItems: 'center', gap: spacing.sm, paddingTop: spacing.md, paddingBottom: spacing.sm },
+    versaoPill: {
+      paddingHorizontal: spacing.md,
+      paddingVertical: 4,
+      borderRadius: radius.pill,
+      backgroundColor: colors.primarySoft,
+    },
+    versao: { ...typography.caption, color: colors.primary, fontFamily: fonts.semibold },
+    tagline: { ...typography.bodySmall, color: colors.textSecondary, textAlign: 'center' },
+    grupo: { gap: spacing.md },
+    grupoTitulo: {
+      ...typography.caption,
+      color: colors.textMuted,
+      fontFamily: fonts.semibold,
+      textTransform: 'uppercase',
+      letterSpacing: 0.6,
+    },
+    grade: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
+    tile: {
+      flexGrow: 1,
+      flexBasis: '45%',
+      alignItems: 'center',
+      gap: 4,
+      paddingVertical: spacing.md,
+      paddingHorizontal: spacing.sm,
+      borderRadius: radius.lg,
+      backgroundColor: colors.surfaceElevated,
+    },
+    tileIcone: {
+      width: 40,
+      height: 40,
+      borderRadius: radius.pill,
+      backgroundColor: colors.primarySoft,
+      alignItems: 'center',
+      justifyContent: 'center',
+      marginBottom: 2,
+    },
+    tileLabel: { ...typography.bodySmall, color: colors.text, fontFamily: fonts.semibold },
+    tileSub: { ...typography.caption, color: colors.textMuted },
+    creditosCard: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
+    creditosTextos: { flex: 1, gap: 2 },
     rotulo: { ...typography.caption, color: colors.textMuted },
     creditos: { ...typography.body, color: colors.text, fontFamily: fonts.semibold },
     rodape: { ...typography.caption, color: colors.textMuted, textAlign: 'center', marginTop: spacing.sm },
