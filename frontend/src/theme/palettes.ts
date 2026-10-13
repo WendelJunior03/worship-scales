@@ -36,6 +36,12 @@ export interface Cores {
   error: string;
   info: string;
   papel: { admin: string; ministro: string; vocal: string; membro: string };
+  /** Fundo do header "Bem-vindo!" (Início), tema claro — tema escuro ignora e mantém o gradiente primary→accent (ver HomeScreen). */
+  headerBg: string;
+  /** Texto/ícones sobre o headerBg, tema claro — tema escuro mantém branco fixo. */
+  headerText: string;
+  /** Contorno sólido dos círculos de atalho (Escalas, Repertório...) no tema claro — tema escuro mantém o anel em gradiente. */
+  atalhoBorder: string;
 }
 
 export type Sombras = Record<'sm' | 'md' | 'lg', ViewStyle>;
@@ -68,6 +74,11 @@ export const paletaEscura: Cores = {
   error: '#D97A7A',
   info: '#8A9CB0',
   papel: { admin: '#8A9CB0', ministro: '#A9B7C6', vocal: '#6D8196', membro: '#8E8E8E' },
+  // Não usados no tema escuro (HomeScreen mantém o header em gradiente e o anel dos
+  // atalhos em gradiente) — preenchidos só pra satisfazer a interface.
+  headerBg: '#6D8196',
+  headerText: '#FFFFFF',
+  atalhoBorder: '#8A9CB0',
 };
 
 export const sombrasEscuras: Sombras = {
@@ -76,12 +87,12 @@ export const sombrasEscuras: Sombras = {
   lg: { shadowColor: '#000000', shadowOffset: { width: 0, height: 14 }, shadowOpacity: 0.5, shadowRadius: 28, elevation: 12 },
 };
 
-// --- Tema CLARO (Ink wash: fundo branco, componentes creme, azul-ardósia) ---
+// --- Tema CLARO (minimalista: fundo branco, cartões cinza-claro, texto quase-preto) ---
 export const paletaClara: Cores = {
   background: '#FFFFFF',
-  surface: '#FFFFE3',
-  surfaceElevated: '#F7F7D9',
-  surfaceMuted: '#F7F7D9',
+  surface: '#F5F5F5',
+  surfaceElevated: '#EFEFEF',
+  surfaceMuted: '#F0F0F0',
   primary: '#6D8196',
   primaryDark: '#5A6C80',
   primaryLight: '#A9B7C6',
@@ -91,19 +102,22 @@ export const paletaClara: Cores = {
   primaryGradient: ['#7C90A5', '#6D8196'],
   bgGradient: ['#FFFFFF', '#FFFFFF'],
   accentGradient: ['#6D8196', '#4A4A4A'],
-  heroGradient: ['#FFFFE3', '#F2F4EC'],
+  heroGradient: ['#FFFFFF', '#F5F5F5'],
   glow: '#6D8196',
-  text: '#4A4A4A',
-  textPrimary: '#4A4A4A',
-  textSecondary: '#6E6E6E',
+  text: '#1A1A1A',
+  textPrimary: '#1A1A1A',
+  textSecondary: '#5C5C5C',
   textMuted: '#9A9A9A',
   textInverse: '#FFFFFF',
-  border: '#CBCBCB',
+  border: '#E3E3E3',
   success: '#5E9A6E',
   warning: '#C29A4A',
   error: '#C25C5C',
   info: '#6D8196',
   papel: { admin: '#6D8196', ministro: '#5A6C80', vocal: '#4A4A4A', membro: '#9A9A9A' },
+  headerBg: '#C9DFF6',
+  headerText: '#1A1A1A',
+  atalhoBorder: '#A0A0A0',
 };
 
 export const sombrasClaras: Sombras = {

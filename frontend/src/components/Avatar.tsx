@@ -20,8 +20,11 @@ interface AvatarProps {
 
 /** Avatar do membro: foto quando existe, senão as iniciais num círculo. */
 export function Avatar({ nome, fotoUrl, size = 44, style }: AvatarProps) {
-  const { colors } = useTheme();
+  const { colors, modo } = useTheme();
   const dim = { width: size, height: size, borderRadius: size / 2 };
+  // Tema claro: iniciais em cinza-escuro (texto principal). Tema escuro mantém a cor
+  // de marca original — não foi pedido mexer no visual do escuro.
+  const corIniciais = modo === 'claro' ? colors.text : colors.primary;
 
   if (fotoUrl) {
     return (
@@ -36,7 +39,7 @@ export function Avatar({ nome, fotoUrl, size = 44, style }: AvatarProps) {
 
   return (
     <View style={[dim, styles.fallback, { backgroundColor: colors.primarySoft }, style]}>
-      <Text style={[styles.txt, { color: colors.primary, fontSize: size * 0.4 }]}>{iniciais(nome) || '?'}</Text>
+      <Text style={[styles.txt, { color: corIniciais, fontSize: size * 0.4 }]}>{iniciais(nome) || '?'}</Text>
     </View>
   );
 }
