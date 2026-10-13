@@ -270,7 +270,14 @@ export function PerfilScreen() {
     <SafeAreaView style={styles.screen} edges={['top']}>
       <View style={styles.header}>
         <Text style={styles.title}>Meu Perfil</Text>
-        <Icon name="create-outline" size={22} color={colors.text} />
+        <TouchableOpacity
+          onPress={() => user && navigation.navigate('DetalheMembro', { membroId: user.id })}
+          hitSlop={8}
+          accessibilityRole="button"
+          accessibilityLabel="Editar perfil"
+        >
+          <Icon name="create-outline" size={22} color={colors.text} />
+        </TouchableOpacity>
       </View>
 
       <ScrollView
