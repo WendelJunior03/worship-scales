@@ -29,7 +29,6 @@ import { useRecurso } from '@/hooks/useRecurso';
 import { fonts, LARGURA_CONTEUDO, radius, spacing, typography } from '@/theme';
 import { Cores } from '@/theme/palettes';
 import { useTheme, useThemedStyles } from '@/contexts/ThemeContext';
-import appConfig from '../../../app.json';
 
 const MENU_ITEMS = [
   { icon: 'person-outline' as const, label: 'Informações' },
@@ -225,13 +224,10 @@ export function PerfilScreen() {
         abrirSenhaModal();
         return;
       case 'Ajuda e suporte':
-        Alert.alert(
-          'Ajuda e suporte',
-          'Precisa de ajuda? Fale com o admin do seu ministério — é quem consegue ajustar cadastros, escalas e permissões.',
-        );
+        navigation.navigate('Ajuda');
         return;
       case 'Sobre o aplicativo':
-        Alert.alert('Sobre o aplicativo', `Worship Stage · versão ${appConfig.expo.version}`);
+        navigation.navigate('Sobre');
         return;
     }
   }
